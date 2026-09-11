@@ -140,6 +140,11 @@ cat <<'MSG'
   On its first run it downloads the offline speech models (~90 MB) into
   your home directory. Models are per-user, so this cannot happen here.
 
+  Voice commands all work as they are. Answering open questions needs a
+  language model, which is a separate, optional install:
+
+    https://ollama.com/download     then:  ollama pull llama3.2
+
   Documentation: https://github.com/RudaraLabs/blackvoice/wiki
 
 MSG

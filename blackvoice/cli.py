@@ -228,6 +228,7 @@ def cmd_doctor(args: argparse.Namespace) -> int:
         ("nmcli", "Wi-Fi"),
         ("notify-send", "desktop notifications"),
         ("gnome-screenshot", "screenshots"),
+        ("ollama", "local AI answers (optional)"),
     ]:
         mark = OK if shutil.which(tool) else DOT
         print(f"  {mark} {tool:<20} {why}")

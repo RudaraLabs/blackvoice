@@ -143,3 +143,38 @@ def test_registry_survives_a_broken_skill(ctx: SkillContext) -> None:
 def test_reply_display_defaults_to_speech() -> None:
     assert Reply(speech="hello").display == "hello"
     assert Reply(speech="hi", display="HI").display == "HI"
+
+
+# ------------------------------------------------------------------ AI skill
+def test_ollama_missing_and_ollama_stopped_read_differently(monkeypatch) -> None:
+    """Nothing listening on the port means two very different things."""
+    from blackvoice.skills import ai as ai_module
+
+    monkeypatch.setattr(ai_module.shutil, "which", lambda _name: None)
+    absent = ai_module.AISkill._friendly_error("ollama", Exception("connection refused"))
+    assert "not installed" in absent
+    assert "ollama.com" in absent
+    # Reassure the user that the rest of the assistant is fine.
+    assert "without it" in absent
+
+    monkeypatch.setattr(ai_module.shutil, "which", lambda _name: "/usr/local/bin/ollama")
+    stopped = ai_module.AISkill._friendly_error("ollama", Exception("connection refused"))
+    assert "not running" in stopped
+    assert "ollama serve" in stopped
+
+
+def test_commands_work_without_any_ai_backend(ctx: SkillContext) -> None:
+    """Ollama is optional: only free-form questions need a backend."""
+    from blackvoice.app import Engine
+
+    ctx.config.ai.provider = "none"
+    engine = Engine(ctx.config)
+    try:
+        assert engine.process("what time is it").ok
+        assert engine.process("calculate 6 * 7").ok
+        # Only the open question is refused, and it says why.
+        question = engine.process("why is the sky blue")
+        assert not question.ok
+        assert "switched off" in question.speech
+    finally:
+        engine.stop()

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import logging
 import os
+import shutil
 from collections import deque
 from typing import Deque, Dict, List
 
@@ -160,8 +161,18 @@ class AISkill(Skill):
     @staticmethod
     def _friendly_error(provider: str, exc: Exception) -> str:
         text = str(exc).lower()
+
         if provider == "ollama" and ("connection" in text or "refused" in text):
-            return "Ollama is not running. Start it with: ollama serve"
+            # Nothing is listening on the port, which means one of two very
+            # different things. Telling them apart saves the user a search.
+            if shutil.which("ollama"):
+                return "Ollama is installed but not running. Start it with: ollama serve"
+            return (
+                "Ollama is not installed - it is what answers questions. "
+                "Get it from https://ollama.com/download, then run: "
+                "ollama pull llama3.2. Every other command works without it."
+            )
+
         if "api_key" in text or "authentication" in text or "401" in text:
             return f"The {provider} API key is missing or invalid."
         if "timeout" in text or "timed out" in text:
