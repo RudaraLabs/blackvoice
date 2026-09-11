@@ -66,6 +66,11 @@ class SpeechConfig:
     fallback_confidence: float = 0.55
     #: seconds to wait on the online recogniser before giving up
     online_timeout: float = 6.0
+    #: fetch the models on first run when they are not installed yet. They
+    #: cannot ship in the distribution packages - a post-install script must
+    #: not use the network, and it runs as root while the models belong to a
+    #: user - so first run is where this legitimately happens.
+    auto_download: bool = True
 
 
 @dataclass

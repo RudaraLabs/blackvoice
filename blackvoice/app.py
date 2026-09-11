@@ -37,6 +37,7 @@ class State:
     THINKING = "thinking"    # running a skill
     SPEAKING = "speaking"
     ASLEEP = "asleep"        # wake word ignored until the user asks for it
+    SETUP = "setup"          # first run: downloading the speech models
 
 
 class PendingConfirmation:
@@ -139,8 +140,44 @@ class Engine:
         if self._thread and self._thread.is_alive():
             self._thread.join(timeout=3.0)
 
+    # ----------------------------------------------------- first-run setup
+    def ensure_models(self) -> bool:
+        """Fetch the speech models if this is the first run.
+
+        Reports through the event bus so the tray, the overlay and the
+        terminal all show the same thing without any of them special-casing it.
+        """
+        from . import models
+
+        if not models.missing(self.config):
+            return True
+
+        last_percent = -1
+
+        def _progress(lang: str, done: int, total: int) -> None:
+            nonlocal last_percent
+            percent = int(done * 100 / total) if total else 0
+            # Publishing every chunk would flood the bus; every percent is plenty.
+            if percent == last_percent:
+                return
+            last_percent = percent
+            self.bus.publish(
+                Topic.STATE, state=State.SETUP, language=lang,
+                percent=percent, done=done, total=total,
+            )
+
+        def _message(text: str) -> None:
+            log.info("%s", text)
+            self.bus.publish(Topic.REPLY, speech="", display=text, ok=True)
+
+        self._set_state(State.SETUP)
+        ok = models.ensure(self.config, on_progress=_progress, on_message=_message)
+        self._set_state(State.IDLE)
+        return ok
+
     # -------------------------------------------------------- audio loop
     def _loop(self) -> None:
+        self.ensure_models()
         self.stt.load()
         wake_ready = self.wake.load()
         if not wake_ready:

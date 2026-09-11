@@ -13,18 +13,6 @@ from . import __version__
 from .config import APP_TITLE, CONFIG_FILE, LOG_FILE, MODELS_DIR, Config, ensure_dirs
 from .core.logs import setup_logging
 
-#: Vosk small models - a few tens of megabytes each, good enough for commands.
-MODEL_URLS = {
-    "en": (
-        "vosk-model-small-en-us-0.15",
-        "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip",
-    ),
-    "hi": (
-        "vosk-model-small-hi-0.22",
-        "https://alphacephei.com/vosk/models/vosk-model-small-hi-0.22.zip",
-    ),
-}
-
 
 def _unicode_console() -> bool:
     """True when stdout can actually render the box-drawing banner.
@@ -161,76 +149,47 @@ def cmd_say(args: argparse.Namespace) -> int:
 
 def cmd_setup(args: argparse.Namespace) -> int:
     """Download the offline speech models."""
+    from . import models
+
     ensure_dirs()
     wanted = ["en", "hi"] if args.language == "both" else [args.language]
     failures = 0
 
     for lang in wanted:
-        name, url = MODEL_URLS[lang]
-        target = MODELS_DIR / name
-        if target.exists() and not args.force:
+        name = models.MODEL_URLS[lang][0]
+        if (MODELS_DIR / name).exists() and not args.force:
             print(f"{OK} {name} already installed")
             continue
-        if not _download_model(name, url, target):
+
+        print(f"{ARROW} downloading {name}")
+        last = [-1]
+
+        def _progress(_lang: str, done: int, total: int) -> None:
+            percent = int(done * 100 / total) if total else 0
+            if percent == last[0]:
+                return
+            last[0] = percent
+            bar = f"  {percent:3d}%  {done / 2**20:6.1f} MiB"
+            print(chr(13) + bar, end="", flush=True)
+
+        ok = models.download(lang, on_progress=_progress)
+        print()
+        if ok:
+            print(f"{OK} {name} installed")
+        else:
             failures += 1
 
     if failures:
-        print("\nSome models could not be installed.")
+        print()
+        print("Some models could not be installed.")
         print(f"You can download them by hand into {MODELS_DIR} from")
         print("https://alphacephei.com/vosk/models")
         return 1
 
-    print(f"\nModels are in {MODELS_DIR}")
+    print()
+    print(f"Models are in {MODELS_DIR}")
     print("Run 'blackvoice doctor' to check everything is wired up.")
     return 0
-
-
-def _download_model(name: str, url: str, target: Path) -> bool:
-    try:
-        import requests
-    except ImportError:
-        print("The requests library is required to download models.")
-        return False
-
-    archive = target.parent / f"{name}.zip"
-    print(f"{ARROW} downloading {name}")
-
-    try:
-        with requests.get(url, stream=True, timeout=60) as response:
-            response.raise_for_status()
-            total = int(response.headers.get("content-length", 0))
-            done = 0
-            with archive.open("wb") as handle:
-                for chunk in response.iter_content(chunk_size=1 << 16):
-                    handle.write(chunk)
-                    done += len(chunk)
-                    if total:
-                        percent = done * 100 // total
-                        print(f"\r  {percent:3d}%  {done / 2**20:6.1f} MiB", end="", flush=True)
-            print()
-    except Exception as exc:
-        print(f"\n  download failed: {exc}")
-        archive.unlink(missing_ok=True)
-        return False
-
-    print("  extracting...")
-    try:
-        if target.exists():
-            shutil.rmtree(target)
-        with zipfile.ZipFile(archive) as zf:
-            zf.extractall(target.parent)
-    except (zipfile.BadZipFile, OSError) as exc:
-        print(f"  extraction failed: {exc}")
-        return False
-    finally:
-        archive.unlink(missing_ok=True)
-
-    if not target.exists():
-        print(f"  the archive did not contain {name}")
-        return False
-
-    print(f"{OK} {name} installed")
-    return True
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:

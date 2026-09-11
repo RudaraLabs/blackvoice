@@ -246,10 +246,12 @@ jobs:
           ./install.sh --system
           \`\`\`
 
-          Then, on every route:
+          On its first run Black Voice downloads the offline speech models
+          (~90 MB) into your home directory - they are per-user, so a package
+          cannot install them for you.
+
           \`\`\`bash
-          blackvoice setup     # download the offline speech models (~90 MB)
-          blackvoice doctor    # check the installation
+          blackvoice doctor    # optional: check what is installed
           \`\`\`
 
           ### What is in the packages

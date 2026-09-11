@@ -166,11 +166,31 @@ SSH or on a server.
 
 ## Speech models
 
+**You do not normally have to do anything here.** On its first run Black Voice
+notices the models are missing and downloads them (~90 MB), reporting progress
+as it goes. It happens once.
+
+They cannot ship inside the `.deb` or `.rpm`. A package's post-install script
+must not use the network — installs have to work in chroots, containers and
+offline mirrors — and that script runs as root, while the models belong to a
+user's home directory. First run is the correct place for it: the right user,
+the right directory, and a moment when a network connection is a reasonable
+thing to expect.
+
+To fetch them yourself, or to re-fetch them:
+
 ```bash
 blackvoice setup                  # both languages
 blackvoice setup --language en    # English only
 blackvoice setup --language hi    # Hindi only
 blackvoice setup --force          # re-download
+```
+
+To turn the automatic download off — for a metered connection, or to control
+exactly when it happens:
+
+```jsonc
+"speech": { "auto_download": false }
 ```
 
 Models come from [alphacephei.com/vosk/models](https://alphacephei.com/vosk/models)

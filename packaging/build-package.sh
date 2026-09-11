@@ -105,9 +105,12 @@ cat <<'MSG'
 
   Black Voice is installed.
 
-    blackvoice setup     download the offline speech models (~90 MB)
-    blackvoice doctor    check the installation
     blackvoice           start it
+
+  On its first run it downloads the offline speech models (~90 MB) into
+  your home directory. Models are per-user, so this cannot happen here.
+
+    blackvoice doctor    check the installation
 
   Documentation: https://github.com/RudaraLabs/blackvoice/wiki
 

@@ -45,7 +45,8 @@ than crashing the assistant.
   "model_hi": "vosk-model-small-hi-0.22",
   "language": "both",
   "fallback_confidence": 0.55,
-  "online_timeout": 6.0
+  "online_timeout": 6.0,
+  "auto_download": true
 }
 ```
 
@@ -56,6 +57,10 @@ than crashing the assistant.
 | `fallback_confidence` | `0.55` | Below this Vosk score, `hybrid` retries online. Raise it to use the cloud more, lower it to use it less. |
 | `model_en` / `model_hi` | small models | A bare name resolves under `~/.local/share/blackvoice/models`; an absolute path is used as-is. |
 | `online_timeout` | `6.0` | Seconds to wait on the cloud recogniser. |
+| `auto_download` | `true` | Fetch the models on first run when they are missing. Set to `false` on a metered connection and run `blackvoice setup` yourself. |
+
+Nothing is downloaded when `mode` is `"online"` — that configuration never uses
+a local model.
 
 **Privacy:** set `mode` to `"offline"` and no audio is ever sent anywhere. In
 `hybrid`, audio only leaves the machine when Vosk is unsure *and* you are online.

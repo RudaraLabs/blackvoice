@@ -11,7 +11,7 @@ pip install -e ".[all,dev]"
 pytest -q
 ```
 
-125 tests should pass in under a second. None of them need a microphone, a
+137 tests should pass in under a second. None of them need a microphone, a
 display or a network connection.
 
 ## Working without a microphone
@@ -57,6 +57,7 @@ pytest --cov=blackvoice          # coverage
 | `test_skills.py` | Calculator, notes, timers, registry | 23 |
 | `test_config.py` | Loading, merging, environment overrides | 14 |
 | `test_engine.py` | Confirmations, event bus, sleep | 9 |
+| `test_models.py` | First-run model setup | 12 |
 
 ### What to test
 
@@ -205,7 +206,7 @@ version. Support for them can be added when there is a reason to need it.
 The architecture does not assume two languages. To add a third:
 
 1. Find a [Vosk model](https://alphacephei.com/vosk/models) for it
-2. Add it to `MODEL_URLS` in `cli.py`
+2. Add it to `MODEL_URLS` in `blackvoice/models.py`
 3. Add a `model_xx` field to `SpeechConfig`
 4. Extend `HybridSTT.load()` to load it
 5. Add patterns to `intents.py` in that language

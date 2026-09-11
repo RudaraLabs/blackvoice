@@ -37,6 +37,7 @@ _STATE_LABEL = {
     "thinking": "thinking…",
     "speaking": "speaking",
     "asleep": "asleep",
+    "setup": "first run — downloading speech models…",
 }
 
 
@@ -279,6 +280,10 @@ class Overlay(QWidget):
             self.heard.setText("")
             self.heard.hide()
             self.reply.hide()
+            self.pop()
+        elif state == "setup":
+            # The first-run download takes a while; keep the card up so the
+            # user can see why nothing is responding yet.
             self.pop()
         elif state in {"idle", "asleep"}:
             self.arm_hide()
