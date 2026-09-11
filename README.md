@@ -32,7 +32,7 @@ fallback.
 ## Install
 
 ```bash
-git clone https://github.com/rudra-labs/black-voice.git
+git clone https://github.com/RudaraLabs/blackvoice.git
 cd black-voice
 ./install.sh --system
 ```

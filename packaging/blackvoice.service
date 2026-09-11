@@ -1,6 +1,6 @@
 [Unit]
 Description=Black Voice — offline-first voice assistant (a Rudra Labs product)
-Documentation=https://github.com/rudra-labs/black-voice
+Documentation=https://github.com/RudaraLabs/blackvoice
 # The tray icon needs a running graphical session.
 After=graphical-session.target sound.target
 PartOf=graphical-session.target

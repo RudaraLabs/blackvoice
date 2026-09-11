@@ -41,7 +41,7 @@ blackvoice = "blackvoice.cli:main"
 black-voice = "blackvoice.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/rudra-labs/black-voice"
+Homepage = "https://github.com/RudaraLabs/blackvoice"
 
 [tool.setuptools.packages.find]
 include = ["blackvoice*"]
