@@ -23,11 +23,16 @@ classifiers = [
   "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
 
+# Minimums are deliberately low. The distribution packages supply numpy,
+# requests and psutil, so a tight floor here would exclude working systems -
+# Ubuntu 22.04 ships numpy 1.21 - for APIs this project does not use. Only
+# frombuffer/sqrt/mean are needed from numpy, and those have been stable for
+# years.
 dependencies = [
-  "sounddevice>=0.4.6",
-  "numpy>=1.24",
-  "requests>=2.31",
-  "psutil>=5.9",
+  "sounddevice>=0.4.0",
+  "numpy>=1.17",
+  "requests>=2.25",
+  "psutil>=5.6",
 ]
 
 [project.optional-dependencies]

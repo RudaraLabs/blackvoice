@@ -13,32 +13,41 @@ Download from the
 **Debian, Ubuntu, Mint, Pop!\_OS**
 
 ```bash
-sudo apt install ./blackvoice_0.1.0-1_amd64.deb
+sudo apt install ./blackvoice_0.1.2-1_amd64.deb
 ```
 
 **Fedora, RHEL, openSUSE**
 
 ```bash
-sudo dnf install ./blackvoice-0.1.0-1.x86_64.rpm
+sudo dnf install ./blackvoice-0.1.2-1.x86_64.rpm
 ```
 
 ### What the package installs
 
 | Path | Contents |
 |---|---|
-| `/opt/blackvoice/venv` | A complete Python environment with every dependency |
+| `/opt/blackvoice/lib` | The few libraries no distribution packages |
 | `/usr/bin/blackvoice` | The launcher |
 | `/usr/share/applications/` | Desktop entry |
 | `/usr/lib/systemd/user/` | The user service |
 | `/usr/share/icons/hicolor/` | The icon |
 
-The bundled environment is deliberate: `vosk` is in no distribution's
-repositories and the PyQt6 package names differ between them, so depending on
-system Python packages would break somewhere. The package therefore depends only
-on `python3`, PortAudio and ALSA, and recommends `espeak-ng` for speech output.
+Black Voice runs on your system Python. Anything your distribution already
+packages — numpy, cffi, requests, PyQt6, psutil — is pulled in as a normal
+dependency, so it tracks whatever interpreter you have.
 
-That makes the download larger (~150 MB) but means it either installs cleanly or
-does not install at all — never half-working.
+Only four libraries are bundled, because no distribution ships them:
+
+| Bundled | Why |
+|---|---|
+| `vosk` | Not in any distribution's repositories |
+| `sounddevice` | Not packaged in Ubuntu |
+| `SpeechRecognition` | Not packaged in Ubuntu |
+| `pyttsx3` | Not packaged in Ubuntu |
+
+All four are `py3-none` wheels — they carry no CPython ABI tag, so they keep
+working when your Python is upgraded. That is what keeps the package to about
+15 MB and lets one build serve every distribution.
 
 ### Verify the download
 

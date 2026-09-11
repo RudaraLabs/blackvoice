@@ -256,10 +256,11 @@ jobs:
 
           ### What is in the packages
 
-          The \`.deb\` and \`.rpm\` bundle a complete Python environment at
-          \`/opt/blackvoice\`, so there is nothing to resolve against your
-          distribution's Python packages. They depend only on \`python3\`,
-          PortAudio and ALSA; \`espeak-ng\` is recommended for speech output.
+          The \`.deb\` and \`.rpm\` run on your system Python and depend on the
+          packages your distribution already provides. Only the four libraries
+          no distribution ships - vosk, sounddevice, SpeechRecognition and
+          pyttsx3 - are bundled, and none of them is tied to a Python version,
+          so one build works everywhere.
 
           ### Verify your download
 

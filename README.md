@@ -86,19 +86,20 @@ The full command reference, in both languages, is in the
 **Debian, Ubuntu, Mint, Pop!\_OS**
 
 ```bash
-sudo apt install ./blackvoice_0.1.0-1_amd64.deb
+sudo apt install ./blackvoice_0.1.2-1_amd64.deb
 ```
 
 **Fedora, RHEL, openSUSE**
 
 ```bash
-sudo dnf install ./blackvoice-0.1.0-1.x86_64.rpm
+sudo dnf install ./blackvoice-0.1.2-1.x86_64.rpm
 ```
 
 Packages are on the
-[releases page](https://github.com/RudaraLabs/blackvoice/releases). They bundle
-a complete Python environment at `/opt/blackvoice`, so there is nothing to
-resolve against your distribution's Python packages.
+[releases page](https://github.com/RudaraLabs/blackvoice/releases). They run on
+your system Python and pull in what your distribution already packages, bundling
+only the four libraries no distribution ships — which is why they are about
+15 MB rather than 150.
 
 **From source — any distribution**
 
