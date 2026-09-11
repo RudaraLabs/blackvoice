@@ -1,0 +1,282 @@
+name: Release
+
+# Releases are cut by pushing a tag:
+#
+#   git tag v0.1.0
+#   git push origin v0.1.0
+#
+# The tag is the trigger and the audit trail. Nothing is published unless the
+# tag agrees with blackvoice/__init__.py and the test suite passes.
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build, without the v (e.g. 0.1.0). Builds artifacts but publishes nothing.'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ------------------------------------------------------------------ #
+  verify:
+    name: Verify version and tests
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: The tag and the code must agree
+        id: version
+        run: |
+          CODE=$(python -c "import re,pathlib; print(re.search(r'__version__\s*=\s*[\"\x27]([^\"\x27]+)', pathlib.Path('blackvoice/__init__.py').read_text()).group(1))")
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            WANTED="${{ inputs.version }}"
+          else
+            WANTED="${GITHUB_REF_NAME#v}"
+          fi
+
+          echo "blackvoice/__init__.py : $CODE"
+          echo "requested              : $WANTED"
+
+          if [ "$CODE" != "$WANTED" ]; then
+            echo "::error::Version mismatch. The tag says $WANTED but the code says $CODE."
+            echo "::error::Update __version__ in blackvoice/__init__.py, commit, then re-tag."
+            exit 1
+          fi
+
+          echo "version=$CODE" >> "$GITHUB_OUTPUT"
+
+      - name: Install and test
+        run: |
+          python -m pip install --quiet --upgrade pip
+          pip install --quiet -e ".[dev]"
+          pytest -q
+
+  # ------------------------------------------------------------------ #
+  python-dist:
+    name: Wheel and sdist
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - run: |
+          python -m pip install --quiet --upgrade pip build
+          python -m build
+          ls -lh dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/*
+
+  # ------------------------------------------------------------------ #
+  source-tarball:
+    name: Source tarball
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build blackvoice-${{ needs.verify.outputs.version }}.tar.gz
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          # A portable tarball for distributions we do not package natively -
+          # Arch, openSUSE, Gentoo and anyone who would rather read install.sh.
+          mkdir -p dist
+          git archive --format=tar.gz \
+            --prefix="blackvoice-${VERSION}/" \
+            -o "dist/blackvoice-${VERSION}.tar.gz" HEAD
+          ls -lh dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-tarball
+          path: dist/*.tar.gz
+
+  # ------------------------------------------------------------------ #
+  deb:
+    name: Debian package
+    needs: verify
+    runs-on: ubuntu-latest
+    # The bundled virtualenv is tied to the interpreter that built it, so the
+    # package is built on the oldest distribution it claims to support.
+    container: debian:12
+    steps:
+      - name: Build prerequisites
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends \
+            git python3 python3-venv python3-pip \
+            ruby ruby-dev build-essential rpm \
+            portaudio19-dev libasound2-dev > /dev/null
+          gem install --no-document fpm > /dev/null
+
+      - uses: actions/checkout@v4
+
+      - name: Build the .deb
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          chmod +x packaging/build-package.sh
+          ./packaging/build-package.sh deb
+
+      - name: Inspect what we produced
+        run: |
+          DEB=$(ls dist/*.deb)
+          echo "### $DEB"
+          dpkg-deb --info "$DEB"
+          echo "--- contents (top level) ---"
+          dpkg-deb --contents "$DEB" | awk '{print $6}' | cut -d/ -f1-3 | sort -u | head -20
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deb
+          path: dist/*.deb
+
+  # ------------------------------------------------------------------ #
+  rpm:
+    name: RPM package
+    needs: verify
+    runs-on: ubuntu-latest
+    container: fedora:40
+    steps:
+      - name: Build prerequisites
+        run: |
+          dnf install -y -q \
+            git python3 python3-pip \
+            ruby ruby-devel gcc make redhat-rpm-config rpm-build \
+            portaudio-devel alsa-lib-devel > /dev/null
+          gem install --no-document fpm > /dev/null
+
+      - uses: actions/checkout@v4
+
+      - name: Build the .rpm
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          chmod +x packaging/build-package.sh
+          ./packaging/build-package.sh rpm
+
+      - name: Inspect what we produced
+        run: |
+          RPM=$(ls dist/*.rpm)
+          echo "### $RPM"
+          rpm -qip "$RPM"
+          echo "--- contents (top level) ---"
+          rpm -qlp "$RPM" | cut -d/ -f1-3 | sort -u | head -20
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rpm
+          path: dist/*.rpm
+
+  # ------------------------------------------------------------------ #
+  release:
+    name: Publish the release
+    needs: [verify, python-dist, source-tarball, deb, rpm]
+    runs-on: ubuntu-latest
+    # A manual run builds and checks everything but publishes nothing.
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect and checksum
+        id: collect
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          mkdir -p release
+          find artifacts -type f \( -name '*.deb' -o -name '*.rpm' \
+            -o -name '*.tar.gz' -o -name '*.whl' \) -exec cp {} release/ \;
+          cd release
+          sha256sum * > SHA256SUMS
+          echo "--- release contents ---"
+          ls -lh
+          echo
+          cat SHA256SUMS
+
+      - name: Write the release notes
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          cat > notes.md <<EOF
+          ## Black Voice ${VERSION}
+
+          An offline-first voice assistant for Linux that speaks Hindi, English
+          and Hinglish. Speech recognition runs on your own machine.
+
+          ### Install
+
+          **Debian, Ubuntu, Mint, Pop!_OS**
+          \`\`\`bash
+          sudo apt install ./blackvoice_${VERSION}-1_amd64.deb
+          \`\`\`
+
+          **Fedora, RHEL, openSUSE**
+          \`\`\`bash
+          sudo dnf install ./blackvoice-${VERSION}-1.x86_64.rpm
+          \`\`\`
+
+          **Anything else**
+          \`\`\`bash
+          tar xzf blackvoice-${VERSION}.tar.gz
+          cd blackvoice-${VERSION}
+          ./install.sh --system
+          \`\`\`
+
+          Then, on every route:
+          \`\`\`bash
+          blackvoice setup     # download the offline speech models (~90 MB)
+          blackvoice doctor    # check the installation
+          \`\`\`
+
+          ### What is in the packages
+
+          The \`.deb\` and \`.rpm\` bundle a complete Python environment at
+          \`/opt/blackvoice\`, so there is nothing to resolve against your
+          distribution's Python packages. They depend only on \`python3\`,
+          PortAudio and ALSA; \`espeak-ng\` is recommended for speech output.
+
+          ### Verify your download
+
+          \`\`\`bash
+          sha256sum -c SHA256SUMS
+          \`\`\`
+
+          ### Documentation
+
+          https://github.com/RudaraLabs/blackvoice/wiki
+          EOF
+          cat notes.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "Black Voice ${{ needs.verify.outputs.version }}" \
+            --notes-file notes.md \
+            release/*
+          echo "Published: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${GITHUB_REF_NAME}"

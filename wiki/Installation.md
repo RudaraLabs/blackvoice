@@ -3,7 +3,52 @@
 Black Voice targets Linux. It needs Python 3.9+, PortAudio for the microphone,
 and a speech engine for talking back.
 
-## The short way
+There are two routes: a distribution package, or the source installer.
+
+## From a package
+
+Download from the
+[releases page](https://github.com/RudaraLabs/blackvoice/releases).
+
+**Debian, Ubuntu, Mint, Pop!\_OS**
+
+```bash
+sudo apt install ./blackvoice_0.1.0-1_amd64.deb
+```
+
+**Fedora, RHEL, openSUSE**
+
+```bash
+sudo dnf install ./blackvoice-0.1.0-1.x86_64.rpm
+```
+
+### What the package installs
+
+| Path | Contents |
+|---|---|
+| `/opt/blackvoice/venv` | A complete Python environment with every dependency |
+| `/usr/bin/blackvoice` | The launcher |
+| `/usr/share/applications/` | Desktop entry |
+| `/usr/lib/systemd/user/` | The user service |
+| `/usr/share/icons/hicolor/` | The icon |
+
+The bundled environment is deliberate: `vosk` is in no distribution's
+repositories and the PyQt6 package names differ between them, so depending on
+system Python packages would break somewhere. The package therefore depends only
+on `python3`, PortAudio and ALSA, and recommends `espeak-ng` for speech output.
+
+That makes the download larger (~150 MB) but means it either installs cleanly or
+does not install at all — never half-working.
+
+### Verify the download
+
+```bash
+sha256sum -c SHA256SUMS
+```
+
+## From source
+
+Works on any distribution, including those with no package above.
 
 ```bash
 git clone https://github.com/RudaraLabs/blackvoice.git

@@ -141,6 +141,65 @@ instead.
 
 The sync only runs when something under `wiki/` actually changed.
 
+## Cutting a release
+
+Versions follow [SemVer](https://semver.org). The version lives in exactly one
+place — `blackvoice/__init__.py` — and `pyproject.toml` derives it. The release
+workflow refuses to build when the tag and the code disagree, so the two cannot
+drift apart silently.
+
+```bash
+# 1. bump the version
+vim blackvoice/__init__.py          # __version__ = "0.2.0"
+pytest -q
+
+# 2. commit it
+git commit -am "Release 0.2.0"
+git push
+
+# 3. tag it — this is what triggers the release
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+The workflow then verifies the tag against the code, runs the tests, and builds
+four things:
+
+| Artifact | Built on |
+|---|---|
+| `blackvoice_X.Y.Z-1_amd64.deb` | a Debian container |
+| `blackvoice-X.Y.Z-1.x86_64.rpm` | a Fedora container |
+| `blackvoice-X.Y.Z.tar.gz` | the source tree |
+| wheel and sdist | for `pip install` |
+
+It publishes them to a GitHub Release with a `SHA256SUMS` file.
+
+The `.deb` and `.rpm` are built **inside containers of the distributions they
+target**, because the bundled virtualenv is tied to the interpreter that created
+it. Building both on the same runner would produce a package that works on one
+distribution and fails on the other.
+
+To test the packaging without releasing anything, run the workflow manually from
+the Actions tab — it builds and checks every artifact but publishes nothing.
+Locally:
+
+```bash
+./packaging/build-package.sh deb     # on Debian or Ubuntu
+./packaging/build-package.sh rpm     # on Fedora
+```
+
+### Version policy
+
+- **Patch** (`0.1.0` → `0.1.1`) — fixes only
+- **Minor** (`0.1.0` → `0.2.0`) — new commands, new skills, new settings
+- **Major** (`0.x` → `1.0.0`) — when the audio path has been verified on real
+  hardware and the configuration format is settled
+
+No pre-release tags for now. Debian writes them `0.2.0~rc1` and RPM writes them
+`0.2.0-0.1.rc1`, and the two sort by different rules — get it wrong and the
+package manager will not offer the upgrade from a release candidate to the final
+version. Support for them can be added when there is a reason to need it.
+
 ## Adding a language
 
 The architecture does not assume two languages. To add a third:

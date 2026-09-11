@@ -83,21 +83,41 @@ The full command reference, in both languages, is in the
 
 ## Install
 
+**Debian, Ubuntu, Mint, Pop!\_OS**
+
+```bash
+sudo apt install ./blackvoice_0.1.0-1_amd64.deb
+```
+
+**Fedora, RHEL, openSUSE**
+
+```bash
+sudo dnf install ./blackvoice-0.1.0-1.x86_64.rpm
+```
+
+Packages are on the
+[releases page](https://github.com/RudaraLabs/blackvoice/releases). They bundle
+a complete Python environment at `/opt/blackvoice`, so there is nothing to
+resolve against your distribution's Python packages.
+
+**From source — any distribution**
+
 ```bash
 git clone https://github.com/RudaraLabs/blackvoice.git
 cd blackvoice
 ./install.sh --system
-blackvoice doctor
 ```
 
-`--system` installs the distro packages (PortAudio, espeak-ng, playerctl and
-friends) and needs sudo. Without it only the Python side is installed, and
-`doctor` tells you exactly what is missing and how to fix it.
+Then, whichever route you took:
 
-The installer creates a virtualenv in `~/.local/share/blackvoice-venv`, puts a
-`blackvoice` command in `~/.local/bin`, adds a desktop entry, and downloads the
-speech models (~90 MB). Nothing is installed system-wide except the distro
-packages.
+```bash
+blackvoice setup     # download the offline speech models (~90 MB)
+blackvoice doctor    # check the installation
+```
+
+For the source route, `--system` installs the distro packages (PortAudio,
+espeak-ng, playerctl and friends) and needs sudo. Without it only the Python
+side is installed, and `doctor` tells you exactly what is missing.
 
 → Manual install, per-distro package lists and what each one is for:
 **[Installation](https://github.com/RudaraLabs/blackvoice/wiki/Installation)**
