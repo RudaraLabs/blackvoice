@@ -101,7 +101,7 @@ class AIConfig:
     provider: str = "ollama"
     ollama_url: str = "http://localhost:11434"
     ollama_model: str = "llama3.2"
-    anthropic_model: str = "claude-sonnet-5"
+    anthropic_model: str = "claude-opus-5"
     openai_model: str = "gpt-4o-mini"
     #: left blank on purpose - read from ANTHROPIC_API_KEY / OPENAI_API_KEY
     api_key: str = ""

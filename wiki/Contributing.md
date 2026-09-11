@@ -1,0 +1,181 @@
+# Contributing
+
+## Setup
+
+```bash
+git clone https://github.com/RudaraLabs/blackvoice.git
+cd blackvoice
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[all,dev]"
+pytest -q
+```
+
+125 tests should pass in under a second. None of them need a microphone, a
+display or a network connection.
+
+## Working without a microphone
+
+Most of the system can be exercised from the terminal:
+
+```bash
+blackvoice text                       # interactive
+blackvoice text "firefox kholo"       # one command
+blackvoice -v text "volume 40"        # with debug logging
+```
+
+Text mode runs the same router, the same skills and the same safety guard as the
+voice path — only the microphone and speaker are skipped. Use it for anything
+that is not specifically an audio problem.
+
+For the UI without a desktop:
+
+```bash
+QT_QPA_PLATFORM=offscreen python -c "
+from PyQt6.QtWidgets import QApplication
+from blackvoice.ui.overlay import Overlay
+app = QApplication([])
+ov = Overlay()
+ov.show_reply('hello')
+print('ok')
+"
+```
+
+## Tests
+
+```bash
+pytest -q                        # everything
+pytest tests/test_router.py -v   # one file
+pytest -k "hindi or wake"        # by name
+pytest --cov=blackvoice          # coverage
+```
+
+| File | Covers | Tests |
+|---|---|---|
+| `test_router.py` | Intent routing, both languages | 48 |
+| `test_safety.py` | The shell guard | 31 |
+| `test_skills.py` | Calculator, notes, timers, registry | 23 |
+| `test_config.py` | Loading, merging, environment overrides | 14 |
+| `test_engine.py` | Confirmations, event bus, sleep | 9 |
+
+### What to test
+
+**A new command** needs a routing case in `test_router.py`, in both languages:
+
+```python
+("i had a coffee", "coffee", "add", {}),
+("coffee pi li", "coffee", "add", {}),
+```
+
+**A new skill** needs its own tests. Skills are plain objects — see
+[Writing Skills → Testing](Writing-Skills#testing).
+
+**A safety bypass** needs a case in `test_safety.py` proving it is closed.
+
+### What not to break
+
+`tests/test_safety.py` is the one file where a failing test means something
+serious. If a change there fails, do not adjust the test to match — the guard is
+the point.
+
+## Style
+
+Match the surrounding code. Specifically:
+
+**Comments explain why, not what.**
+
+```python
+# Endpointing is done on the RMS level rather than on Vosk's own utterance
+# boundaries, so it behaves the same way when only the online path exists.
+```
+
+Not `# loop over the blocks`.
+
+**Probe for tools, never assume.**
+
+```python
+tool = self.which("gnome-screenshot", "spectacle", "grim", "scrot")
+if tool is None:
+    return Reply.error("No screenshot tool found. Install grim or scrot.")
+```
+
+This is why it works across desktops. A hard-coded binary name is a bug.
+
+**Degrade, do not crash.** Optional dependencies are imported lazily and their
+absence is handled with a message naming the fix.
+
+**Error messages should be actionable.** `Install playerctl so I can control
+media playback.` — not `Error 3`.
+
+**Type hints on public functions.** `from __future__ import annotations` is at
+the top of every module.
+
+## Commits
+
+Explain why the change was needed, not just what changed:
+
+```
+Point the project URLs at the real repository
+
+The clone URL, the pyproject homepage and the systemd unit's Documentation
+line all pointed at a repository that was never created.
+```
+
+## Pull requests
+
+1. Branch from `main`
+2. Make the change, with tests
+3. `pytest -q` passes
+4. `blackvoice text "..."` still behaves for anything you touched
+5. Open the PR, describing what broke or what was missing
+
+Small and focused beats large and sweeping. A PR that fixes one thing and
+explains why is easier to accept than one that rewrites a module.
+
+## Documentation
+
+This wiki lives in the repository, in `wiki/`. Editing the wiki on GitHub
+directly does not work — a workflow overwrites it from `wiki/` on every push, so
+your edit would be lost. Change the files in `wiki/` and open a pull request
+instead.
+
+The sync only runs when something under `wiki/` actually changed.
+
+## Adding a language
+
+The architecture does not assume two languages. To add a third:
+
+1. Find a [Vosk model](https://alphacephei.com/vosk/models) for it
+2. Add it to `MODEL_URLS` in `cli.py`
+3. Add a `model_xx` field to `SpeechConfig`
+4. Extend `HybridSTT.load()` to load it
+5. Add patterns to `intents.py` in that language
+6. Add routing tests
+
+The hybrid recogniser already runs every loaded model over the same buffer and
+keeps the most confident result, so a third model needs no changes there.
+
+## Where to start
+
+Good first contributions:
+
+- **More command phrasings.** The rules cover common ways of saying things, not
+  every way. If something natural is not understood, add the pattern.
+- **A new skill.** Clipboard, screen recording, window management, notes
+  search — see [Writing Skills](Writing-Skills).
+- **Desktop coverage.** If a tool your desktop uses is not in the probe lists,
+  add it.
+- **Real-hardware testing.** The audio path is the least-tested part of the
+  system. Bug reports from an actual Linux machine with a microphone are
+  genuinely valuable.
+
+## Reporting bugs
+
+Include the output of `blackvoice doctor`, your distribution and desktop, and —
+for a command problem — the exact phrase plus what `blackvoice text "that
+phrase"` does. That one line separates a recognition problem from a routing
+problem immediately.
+
+## Licence
+
+MIT. Contributions are accepted under the same terms.

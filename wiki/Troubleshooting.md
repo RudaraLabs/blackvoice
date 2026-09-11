@@ -1,0 +1,348 @@
+# Troubleshooting
+
+Start here:
+
+```bash
+blackvoice doctor
+```
+
+It lists every Python package, system tool, model and microphone, marks what is
+missing, and prints the exact command to fix each gap. Most problems on this page
+are visible in its output.
+
+For more detail:
+
+```bash
+blackvoice -v run --no-ui               # debug logging in the terminal
+tail -f ~/.cache/blackvoice/blackvoice.log
+```
+
+---
+
+## It will not start
+
+### `could not open microphone`
+
+PortAudio is missing or no input device is available.
+
+```bash
+sudo apt install portaudio19-dev     # then reinstall the Python package
+pip install --force-reinstall sounddevice
+blackvoice devices
+```
+
+If `devices` lists nothing, the problem is below Black Voice — check
+`arecord -l` and your desktop's sound settings.
+
+### `PyQt6 is not available`
+
+It falls back to headless automatically. To get the tray back:
+
+```bash
+pip install PyQt6
+```
+
+### No tray icon, but it is running
+
+Some GNOME setups need the AppIndicator extension. The overlay and voice both
+still work — trigger it with the wake word or `blackvoice text`.
+
+---
+
+## It does not hear me
+
+### The wake word never fires
+
+**Models missing.** `doctor` will say so.
+
+```bash
+blackvoice setup
+```
+
+**Wrong microphone.**
+
+```bash
+blackvoice devices
+```
+
+Then set the index:
+
+```jsonc
+"audio": { "input_device": 2 }
+```
+
+**Speaking too quietly.** Lower the threshold:
+
+```jsonc
+"audio": { "silence_threshold": 0.008 }
+```
+
+**Or skip it** — click the tray icon, which needs no wake word at all.
+
+### It triggers when I am not talking to it
+
+“black” is close to **back**, **block**, **blank**, **lack** and **slack**. A
+two-word trigger is much more reliable:
+
+```jsonc
+"wake": { "phrases": ["hey black", "ok black"] }
+```
+
+### It cuts me off mid-sentence
+
+```jsonc
+"audio": { "silence_timeout": 2.0 }
+```
+
+### It keeps listening after I stop
+
+Either the room is noisy or the threshold is too low:
+
+```jsonc
+"audio": { "silence_threshold": 0.02 }
+```
+
+---
+
+## Recognition is poor
+
+First find out whether it is recognition or routing:
+
+```bash
+blackvoice text "the exact phrase"
+```
+
+If text mode does the right thing, recognition is the problem. If it does the
+wrong thing, the routing rules are — open an issue with the phrase.
+
+**Load one model instead of two.** Two models on the same audio is what makes
+Hinglish work, but a single one is more accurate for a single language:
+
+```jsonc
+"speech": { "language": "en" }
+```
+
+**Use a bigger model.** The small models are ~50 MB and tuned for commands.
+Download a larger one from
+[alphacephei.com/vosk/models](https://alphacephei.com/vosk/models) and point at
+it:
+
+```jsonc
+"speech": { "model_en": "/home/you/models/vosk-model-en-us-0.22" }
+```
+
+**Lean on the cloud more.** Raise the threshold so hybrid mode falls back more
+often:
+
+```jsonc
+"speech": { "fallback_confidence": 0.75 }
+```
+
+Or use it exclusively — `"mode": "online"`.
+
+---
+
+## It does not talk back
+
+```bash
+blackvoice say "testing"
+```
+
+The engine it picked is printed first. If it says `none`:
+
+```bash
+sudo apt install espeak-ng
+```
+
+**It speaks English but not Hindi.** espeak-ng needs its Hindi voice:
+
+```bash
+espeak-ng -v hi "नमस्ते"
+```
+
+**The voice is unpleasant.** espeak-ng is robotic by design. For a natural voice,
+install [piper](https://github.com/rhasspy/piper), download a voice, and point at
+it:
+
+```jsonc
+"voice": { "engine": "piper", "piper_model": "/path/to/voice.onnx" }
+```
+
+---
+
+## Commands do not work
+
+### Volume does nothing
+
+```bash
+sudo apt install pulseaudio-utils     # gives you pactl
+```
+
+PipeWire users get `wpctl` from `pipewire-utils` / `wireplumber`. Check which one
+you have:
+
+```bash
+which wpctl pactl amixer
+```
+
+### Brightness is refused
+
+You are probably not in the `video` group:
+
+```bash
+sudo usermod -aG video $USER
+```
+
+Log out and back in. Or install `brightnessctl`, which handles permissions
+itself:
+
+```bash
+sudo apt install brightnessctl
+```
+
+### Screenshots fail
+
+Install any one of these: `gnome-screenshot`, `spectacle`, `grim` (Wayland),
+`scrot` (X11), `maim`, `imagemagick`.
+
+### Media keys do nothing
+
+```bash
+sudo apt install playerctl
+playerctl status      # must show a running player
+```
+
+### An application will not open
+
+Check the name Black Voice would use:
+
+```bash
+which firefox
+blackvoice -v text "open firefox"
+```
+
+The debug log shows what it resolved to. Set an explicit default if
+auto-detection picks the wrong one:
+
+```jsonc
+"skills": { "browser": "firefox" }
+```
+
+### “That command is on the blocked list”
+
+Working as intended — see **[Security Model](Security-Model)**. If you are sure,
+edit `safety.blocked_patterns` yourself. Note that upgrades never modify an
+existing config, so your edits stay.
+
+---
+
+## AI answers do not work
+
+### `Ollama is not running`
+
+```bash
+ollama serve          # in another terminal
+ollama pull llama3.2
+```
+
+### `The <provider> API key is missing or invalid`
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...     # or OPENAI_API_KEY
+```
+
+Set it in the systemd unit too if you run it as a service, otherwise the
+variable will not be there:
+
+```ini
+Environment=ANTHROPIC_API_KEY=sk-ant-...
+```
+
+### Answers are too long
+
+```jsonc
+"ai": { "max_tokens": 256 }
+```
+
+The system prompt already asks for at most three sentences; a local model may
+ignore it. Adjust `ai.system_prompt` directly.
+
+---
+
+## It runs but behaves oddly
+
+### Changes to config.json do nothing
+
+Restart it — the config is read once at startup.
+
+```bash
+systemctl --user restart blackvoice
+```
+
+Check the file parses:
+
+```bash
+python -m json.tool ~/.config/blackvoice/config.json
+```
+
+A broken config falls back to defaults with a message on stderr rather than
+crashing.
+
+### New safety patterns did not appear after upgrading
+
+They never do. `blocked_patterns` was written to your config on first run and is
+not touched again.
+
+```bash
+blackvoice config --reset
+```
+
+### It hears its own voice
+
+It drains the microphone after speaking, so this should not happen. If it does,
+you likely have a loop-back device selected — pick a real microphone with
+`blackvoice devices`.
+
+---
+
+## The service will not stay up
+
+```bash
+systemctl --user status blackvoice
+journalctl --user -u blackvoice -n 50
+```
+
+**Starts before audio is ready.** The unit already sleeps 3 seconds; raise it:
+
+```ini
+ExecStartPre=/bin/sleep 10
+```
+
+**No display.** The tray needs a graphical session. For headless operation:
+
+```ini
+Environment=BLACKVOICE_UI_ENABLED=false
+```
+
+**Stops when you log out.** That is by design — it is a user service tied to your
+graphical session.
+
+---
+
+## Still stuck
+
+Open an issue at
+[RudaraLabs/blackvoice/issues](https://github.com/RudaraLabs/blackvoice/issues)
+with:
+
+```bash
+blackvoice doctor          # paste the whole output
+blackvoice --version
+uname -a
+echo "$XDG_CURRENT_DESKTOP $XDG_SESSION_TYPE"
+tail -50 ~/.cache/blackvoice/blackvoice.log
+```
+
+For a command that is misheard or mishandled, include the exact phrase and what
+`blackvoice text "that phrase"` does — that separates a recognition problem from
+a routing one immediately.

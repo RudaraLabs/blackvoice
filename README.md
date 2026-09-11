@@ -49,6 +49,10 @@ Check everything landed:
 blackvoice doctor
 ```
 
+> **Full documentation is in the [wiki](https://github.com/RudaraLabs/blackvoice/wiki)** —
+> installation detail, every voice command, the configuration reference, the
+> security model and how to write your own skills.
+
 ### Manual install
 
 ```bash
@@ -221,6 +225,10 @@ pip install -e ".[all,dev]"
 pytest                     # 125 tests, no microphone required
 blackvoice text            # exercise the router without speaking
 ```
+
+The wiki lives in `wiki/` and is published by a GitHub Actions workflow on every
+push that touches it. Editing the wiki on GitHub directly does not work — the
+next sync overwrites it. Change `wiki/` and open a pull request instead.
 
 Adding a skill is three steps: write a `Skill` subclass with a `handle` method,
 add its patterns to `RULES` in `blackvoice/nlu/intents.py`, and register it in

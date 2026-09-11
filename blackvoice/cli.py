@@ -9,6 +9,7 @@ import zipfile
 from pathlib import Path
 from typing import List, Optional
 
+from . import __version__
 from .config import APP_TITLE, CONFIG_FILE, LOG_FILE, MODELS_DIR, Config, ensure_dirs
 from .core.logs import setup_logging
 
@@ -371,6 +372,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("-v", "--verbose", action="store_true", help="debug logging")
     parser.add_argument("-q", "--quiet", action="store_true", help="warnings and errors only")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"{APP_TITLE} {__version__}",
+        help="print the version and exit",
+    )
 
     sub = parser.add_subparsers(dest="command")
 
