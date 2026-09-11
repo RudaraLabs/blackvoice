@@ -1,0 +1,26 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Black Voice
+GenericName=Voice Assistant
+Comment=Offline-first voice assistant for Linux (Hindi and English) — a Rudra Labs product
+Exec=@BIN@
+TryExec=@BIN@
+Icon=blackvoice
+Terminal=false
+Categories=Utility;Accessibility;AudioVideo;
+Keywords=voice;assistant;speech;recognition;hindi;awaaz;
+StartupNotify=false
+X-GNOME-UsesNotifications=true
+
+[Desktop Action Listen]
+Name=Listen now
+Exec=@BIN@ run
+
+[Desktop Action Text]
+Name=Type a command
+Exec=@BIN@ text
+
+[Desktop Action Doctor]
+Name=Check installation
+Exec=@BIN@ doctor

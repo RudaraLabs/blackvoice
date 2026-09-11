@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Black Voice runtime data (these live under ~/.config and ~/.local/share,
+# but keep them ignored in case someone points XDG_* at the source tree)
+models/
+*.log
+config.json
+notes.md
+
+# Staging area for the GitHub org profile — belongs in the org .github repo
+org-profile/

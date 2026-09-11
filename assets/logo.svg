@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Black Voice">
+  <title>Black Voice</title>
+
+  <!-- White plate -->
+  <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="#FFFFFF"/>
+  <rect x="4" y="4" width="504" height="504" rx="108" ry="108" fill="none" stroke="#111111" stroke-opacity="0.14" stroke-width="8"/>
+
+  <!-- Wordmark -->
+  <text x="256" y="258"
+        font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="96" font-weight="800" letter-spacing="9"
+        text-anchor="middle" fill="#0A0A0A">BLACK</text>
+
+  <!-- Voice waveform -->
+  <g fill="#0A0A0A">
+    <rect x="128" y="322" width="16" height="36"  rx="8"/>
+    <rect x="160" y="306" width="16" height="68"  rx="8"/>
+    <rect x="192" y="288" width="16" height="104" rx="8"/>
+    <rect x="224" y="266" width="16" height="148" rx="8"/>
+    <rect x="256" y="288" width="16" height="104" rx="8"/>
+    <rect x="288" y="272" width="16" height="136" rx="8"/>
+    <rect x="320" y="300" width="16" height="80"  rx="8"/>
+    <rect x="352" y="322" width="16" height="36"  rx="8"/>
+  </g>
+</svg>

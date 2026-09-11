@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 170" width="760" height="170" role="img" aria-label="Black Voice — a Rudra Labs product">
+  <title>Black Voice — a Rudra Labs product</title>
+
+  <rect x="0" y="0" width="760" height="170" fill="#FFFFFF"/>
+
+  <!-- Waveform mark -->
+  <g fill="#0A0A0A">
+    <rect x="48" y="77" width="7" height="16" rx="3.5"/>
+    <rect x="61" y="69" width="7" height="32" rx="3.5"/>
+    <rect x="74" y="61" width="7" height="48" rx="3.5"/>
+    <rect x="87" y="72" width="7" height="26" rx="3.5"/>
+  </g>
+
+  <!-- Product name -->
+  <text x="118" y="88"
+        font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="34" font-weight="800" letter-spacing="3" fill="#0A0A0A">BLACK VOICE</text>
+
+  <!-- Vendor attribution: deliberately small and grey so it sits under the
+       product name rather than competing with it. -->
+  <text x="120" y="112"
+        font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="12" font-weight="500" letter-spacing="3.4" fill="#7A7A7A">A RUDRA LABS PRODUCT</text>
+</svg>

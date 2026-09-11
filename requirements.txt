@@ -1,0 +1,17 @@
+# ---- Core (required) ----
+sounddevice>=0.4.6        # microphone capture (needs system PortAudio)
+numpy>=1.24               # audio buffers
+requests>=2.31            # AI / weather HTTP
+psutil>=5.9               # system + process info
+
+# ---- Offline speech-to-text ----
+vosk>=0.3.45
+
+# ---- Online speech-to-text fallback ----
+SpeechRecognition>=3.10
+
+# ---- Desktop UI (tray + overlay) ----
+PyQt6>=6.6
+
+# ---- Text-to-speech fallback engine ----
+pyttsx3>=2.90

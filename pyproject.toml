@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blackvoice"
+version = "0.1.0"
+description = "Black Voice — an offline-first voice assistant for Linux (Hindi + English). A Rudra Labs product."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Rudra Labs" }]
+maintainers = [{ name = "Gaurav Sharma" }]
+keywords = ["voice-assistant", "linux", "vosk", "speech-recognition", "hindi"]
+classifiers = [
+  "Environment :: X11 Applications :: Qt",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+
+dependencies = [
+  "sounddevice>=0.4.6",
+  "numpy>=1.24",
+  "requests>=2.31",
+  "psutil>=5.9",
+]
+
+[project.optional-dependencies]
+offline = ["vosk>=0.3.45"]
+online  = ["SpeechRecognition>=3.10"]
+ui      = ["PyQt6>=6.6"]
+tts     = ["pyttsx3>=2.90"]
+all     = ["vosk>=0.3.45", "SpeechRecognition>=3.10", "PyQt6>=6.6", "pyttsx3>=2.90"]
+dev     = ["pytest>=7.4", "pytest-cov>=4.1"]
+
+[project.scripts]
+blackvoice = "blackvoice.cli:main"
+black-voice = "blackvoice.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/rudra-labs/black-voice"
+
+[tool.setuptools.packages.find]
+include = ["blackvoice*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

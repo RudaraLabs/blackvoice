@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 150" width="640" height="150" role="img" aria-label="Rudra Labs">
+  <title>Rudra Labs</title>
+  <rect x="0" y="0" width="640" height="150" fill="#FFFFFF"/>
+  <g fill="#0A0A0A" transform="translate(40,29)">
+      <polygon points="43.1,52.9 43.1,21.4 46.0,10.2 48.9,21.4 48.9,52.9"/>
+      <polygon points="25.2,52.9 25.2,27.3 27.7,18.1 30.3,27.3 30.3,52.9"/>
+      <polygon points="61.7,52.9 61.7,27.3 64.3,18.1 66.8,27.3 66.8,52.9"/>
+      <rect x="22.8" y="51.5" width="46.4" height="6.3" rx="3.1" ry="3.1"/>
+      <rect x="43.1" y="57.8" width="5.9" height="24.0" rx="2.9" ry="2.9"/>
+  </g>
+  <text x="172" y="82"
+        font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="38" font-weight="800" letter-spacing="4" fill="#0A0A0A">RUDRA LABS</text>
+  <text x="174" y="106"
+        font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="12" font-weight="500" letter-spacing="3.4" fill="#7A7A7A">RUDRALABS.DEV</text>
+</svg>

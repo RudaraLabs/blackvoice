@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Rudra Labs">
+  <title>Rudra Labs</title>
+  <!-- Full-bleed background: GitHub rounds the corners and Google crops to a
+       circle, so the artwork must not round them itself. -->
+  <rect x="0" y="0" width="512" height="512" fill="#FFFFFF"/>
+  <g fill="#0A0A0A">
+    <polygon points="239.6,294.3 239.6,119.3 256.0,57.0 272.4,119.3 272.4,294.3"/>
+    <polygon points="140.1,294.3 140.1,152.1 154.3,100.7 168.5,152.1 168.5,294.3"/>
+    <polygon points="343.5,294.3 343.5,152.1 357.7,100.7 371.9,152.1 371.9,294.3"/>
+    <rect x="127.0" y="286.6" width="258.1" height="35.0" rx="17.5" ry="17.5"/>
+    <rect x="239.6" y="321.6" width="32.8" height="133.4" rx="16.4" ry="16.4"/>
+  </g>
+</svg>

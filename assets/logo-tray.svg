@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Black Voice tray icon">
+  <title>Black Voice</title>
+  <rect x="2" y="2" width="60" height="60" rx="14" ry="14" fill="#FFFFFF" stroke="#111111" stroke-opacity="0.25" stroke-width="2"/>
+  <g fill="#0A0A0A">
+    <rect x="14" y="27" width="5" height="10" rx="2.5"/>
+    <rect x="23" y="21" width="5" height="22" rx="2.5"/>
+    <rect x="32" y="16" width="5" height="32" rx="2.5"/>
+    <rect x="41" y="23" width="5" height="18" rx="2.5"/>
+  </g>
+</svg>

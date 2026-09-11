@@ -1,0 +1,31 @@
+[Unit]
+Description=Black Voice — offline-first voice assistant (a Rudra Labs product)
+Documentation=https://github.com/rudra-labs/black-voice
+# The tray icon needs a running graphical session.
+After=graphical-session.target sound.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=@BIN@ run
+Restart=on-failure
+RestartSec=5
+# Give PulseAudio/PipeWire a moment after login before grabbing the mic.
+ExecStartPre=/bin/sleep 3
+
+# Any BLACKVOICE_<SECTION>_<KEY> variable overrides the config file, e.g.
+#   Environment=BLACKVOICE_SPEECH_MODE=offline
+#   Environment=BLACKVOICE_AI_PROVIDER=none
+Environment=PYTHONUNBUFFERED=1
+
+# Modest hardening: the assistant only ever needs the user's own files.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-write
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=graphical-session.target
