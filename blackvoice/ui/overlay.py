@@ -14,6 +14,7 @@ from PyQt6.QtCore import QEasingCurve, QPropertyAnimation, QRectF, Qt, QTimer, p
 from PyQt6.QtGui import QColor, QFont, QGuiApplication, QPainter, QPainterPath, QPen
 from PyQt6.QtWidgets import (
     QApplication,
+    QPushButton,
     QFrame,
     QGraphicsDropShadowEffect,
     QHBoxLayout,
@@ -127,9 +128,10 @@ class Overlay(QWidget):
 
     submitted = pyqtSignal(str)
 
-    def __init__(self, timeout: float = 8.0) -> None:
+    def __init__(self, timeout: float = 8.0, auto_close: bool = False) -> None:
         super().__init__()
         self._timeout_ms = int(timeout * 1000)
+        self._auto_close = auto_close
 
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint
@@ -194,6 +196,22 @@ class Overlay(QWidget):
         self.state_label.setStyleSheet(f"color: {GREY.name()};")
         header.addWidget(self.state_label)
         header.addStretch(1)
+
+        close = QPushButton("×")
+        close.setFixedSize(22, 22)
+        close.setCursor(Qt.CursorShape.PointingHandCursor)
+        close.setToolTip("Close")
+        close.setStyleSheet(
+            f"""
+            QPushButton {{
+                border: none; background: transparent;
+                color: {GREY.name()}; font-size: 17px;
+            }}
+            QPushButton:hover {{ color: {BLACK.name()}; }}
+            """
+        )
+        close.clicked.connect(self.dismiss)
+        header.addWidget(close)
         layout.addLayout(header)
 
         # Waveform --------------------------------------------------------
@@ -293,7 +311,15 @@ class Overlay(QWidget):
         self._fade.start()
 
     def arm_hide(self) -> None:
+        """Start the automatic close, if the user asked for one at all."""
+        if not self._auto_close or self._timeout_ms <= 0:
+            return
         self._hide_timer.start(self._timeout_ms)
+
+    def dismiss(self) -> None:
+        """Close the card now, whatever it was doing."""
+        self._hide_timer.stop()
+        self.fade_out()
 
     # ------------------------------------------------------------ updates
     def show_state(self, state: str) -> None:
@@ -331,7 +357,8 @@ class Overlay(QWidget):
         )
         self.reply.show()
         self.pop()
-        self.arm_hide()
+        # Deliberately not arming the close here. The engine is very likely
+        # still speaking this reply; the timer starts when it returns to idle.
 
     def focus_input(self) -> None:
         self.pop()

@@ -64,7 +64,9 @@ def test_broken_file_falls_back_to_defaults(tmp_path, capsys) -> None:
     path.write_text("{ this is not json", encoding="utf-8")
 
     cfg = Config.load(path)
-    assert cfg.voice.rate == 165
+    # Compare against the dataclass default rather than a literal, so tuning a
+    # default does not fail a test that is about broken-file handling.
+    assert cfg.voice.rate == Config().voice.rate
     assert "unreadable" in capsys.readouterr().out
 
 
@@ -94,7 +96,7 @@ def test_env_list_override(tmp_path, monkeypatch) -> None:
 def test_bad_env_value_is_ignored(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.setenv("BLACKVOICE_VOICE_RATE", "not-a-number")
     cfg = Config.load(tmp_path / "config.json")
-    assert cfg.voice.rate == 165
+    assert cfg.voice.rate == Config().voice.rate
     assert "ignoring bad env value" in capsys.readouterr().out
 
 

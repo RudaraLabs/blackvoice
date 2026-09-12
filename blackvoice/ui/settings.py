@@ -63,6 +63,19 @@ CHOICES: Dict[str, List[str]] = {
     "ui.theme": ["light", "dark"],
 }
 
+# Filled in lazily so the voice catalogue lives in one place.
+try:
+    from .. import voices as _voices
+
+    CHOICES["voice.piper_voice_en"] = [
+        n for n, (lang, _p, _d) in _voices.VOICES.items() if lang == "en"
+    ]
+    CHOICES["voice.piper_voice_hi"] = [
+        n for n, (lang, _p, _d) in _voices.VOICES.items() if lang == "hi"
+    ]
+except Exception:  # pragma: no cover - the window still works without them
+    pass
+
 #: One line under each field. Kept here because it is interface copy.
 HELP: Dict[str, str] = {
     "ai.provider": "Where open questions are answered. Every voice command works without one.",
@@ -96,12 +109,16 @@ HELP: Dict[str, str] = {
     "voice.volume": "0 to 1.",
     "voice.voice_en": "espeak voice id for English.",
     "voice.voice_hi": "espeak voice id for Hindi.",
-    "voice.piper_model": "Absolute path to a piper .onnx voice.",
+    "voice.piper_voice_en": "Neural English voice. Downloaded on first use (~60 MB).",
+    "voice.piper_voice_hi": "Neural Hindi voice. Downloaded on first use (~60 MB).",
+    "voice.piper_auto_download": "Fetch the Piper voice the first time it is needed.",
+    "voice.piper_model": "An explicit .onnx path, which overrides the two voices above.",
     "safety.confirm_shell": "Ask before running anything that is not read-only. Leave this on.",
     "safety.blocked_patterns": "Never run, confirmation or not. One pattern per line.",
     "safety.shell_timeout": "Kill a command that runs longer than this.",
     "safety.max_output_chars": "Truncate output shown back to you.",
     "ui.enabled": "Tray icon and popup overlay.",
+    "ui.auto_close": "Close the popup by itself after a reply. Off means it stays until you close it.",
     "ui.overlay_timeout": "Seconds the card stays after a reply.",
     "ui.show_notifications": "Desktop notifications for timers and reminders.",
     "skills.weather_city": "Leave empty to locate by IP address.",
@@ -114,7 +131,7 @@ HELP: Dict[str, str] = {
 
 #: Fields that need a restart before they take effect. Almost everything does,
 #: because the engine reads the config once at startup.
-_LIVE_FIELDS = {"ui.overlay_timeout", "ui.show_notifications"}
+_LIVE_FIELDS = {"ui.overlay_timeout", "ui.auto_close", "ui.show_notifications"}
 
 
 def _label_for(name: str) -> str:

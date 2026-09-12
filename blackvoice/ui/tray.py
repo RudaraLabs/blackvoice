@@ -66,7 +66,10 @@ class TrayApp:
         self.app.setWindowIcon(app_icon())
         self.app.setQuitOnLastWindowClosed(False)
 
-        self.overlay = Overlay(timeout=engine.config.ui.overlay_timeout)
+        self.overlay = Overlay(
+            timeout=engine.config.ui.overlay_timeout,
+            auto_close=engine.config.ui.auto_close,
+        )
         self.overlay.submitted.connect(self._on_typed)
 
         self.tray = QSystemTrayIcon(tray_icon(), self.app)
@@ -160,6 +163,7 @@ class TrayApp:
         # Most of the engine reads its configuration once at startup, so the
         # window tells the user to restart. What can be applied live is.
         self.overlay._timeout_ms = int(self.engine.config.ui.overlay_timeout * 1000)
+        self.overlay._auto_close = self.engine.config.ui.auto_close
         log.info("settings reloaded")
 
     def _open_config(self) -> None:

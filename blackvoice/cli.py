@@ -305,6 +305,94 @@ def cmd_mic(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_voice(args: argparse.Namespace) -> int:
+    """Install and try the neural voices.
+
+    espeak-ng is the fallback because it is tiny and always available, but many
+    people cannot follow it. Piper sounds like a person; this is the shortest
+    path from one to the other.
+    """
+    from . import voices
+    from .audio.tts import Speaker, detect_engine
+
+    config = Config.load()
+
+    binary = voices.piper_binary()
+    print(f"piper binary      {binary or '(not installed)'}")
+    print(f"current engine    {config.voice.engine} -> {detect_engine()}")
+    print()
+
+    print("Voices:")
+    for name, (lang, _path, desc) in voices.VOICES.items():
+        mark = OK if voices.installed(name) else DOT
+        print(f"  {mark} {name:<24} {lang}   {desc}")
+    print()
+    print(f"Stored in {voices.VOICES_DIR}")
+    print()
+
+    if not args.install and not args.test:
+        if binary is None:
+            print("Piper is not installed. Without it these voices cannot be used:")
+            print()
+            print("    pip install piper-tts")
+            print()
+            print("  or download a release from")
+            print("  https://github.com/rhasspy/piper/releases")
+            print()
+        print("To fetch the voices:   blackvoice voice --install")
+        print("To hear the result:    blackvoice voice --test")
+        return 0
+
+    if args.install:
+        wanted = [args.name] if args.name else list(voices.DEFAULT_VOICES.values())
+        failed = 0
+        for name in wanted:
+            if voices.installed(name):
+                print(f"{OK} {name} already installed")
+                continue
+
+            print(f"{ARROW} downloading {name}")
+            last = [-1]
+
+            def _progress(_n: str, done: int, total: int) -> None:
+                percent = int(done * 100 / total) if total else 0
+                if percent == last[0]:
+                    return
+                last[0] = percent
+                bar = f"  {percent:3d}%  {done / 2**20:6.1f} MiB"
+                print(chr(13) + bar, end="", flush=True)
+
+            ok = voices.download(name, on_progress=_progress)
+            print()
+            if ok:
+                print(f"{OK} {name} installed")
+            else:
+                failed += 1
+
+        if failed:
+            print()
+            print("Some voices could not be downloaded.")
+            return 1
+
+        print()
+        print("Now switch to them:")
+        print()
+        print('    "voice": { "engine": "piper" }')
+        print()
+        print("  or use the tray icon -> Settings -> Speech output.")
+
+    if args.test:
+        print()
+        sample = args.text or "Black Voice is ready. Opening firefox."
+        speaker = Speaker(config.voice)
+        print(f"Speaking with: {speaker.engine}")
+        speaker.say(sample)
+        speaker.wait_until_idle(timeout=60)
+        speaker.shutdown()
+
+    return 0
+
+
 def cmd_doctor(args: argparse.Namespace) -> int:
     """Report what is installed and what is missing."""
     from .app import Engine
@@ -484,6 +572,14 @@ def build_parser() -> argparse.ArgumentParser:
     say = sub.add_parser("say", help="test text to speech")
     say.add_argument("text", nargs="*")
     say.set_defaults(func=cmd_say)
+
+    voice = sub.add_parser("voice", help="install and try the neural voices")
+    voice.add_argument("--install", action="store_true",
+                       help="download the Piper voices")
+    voice.add_argument("--test", action="store_true", help="speak a sample")
+    voice.add_argument("--name", help="a specific voice rather than the defaults")
+    voice.add_argument("--text", help="what to say for --test")
+    voice.set_defaults(func=cmd_voice)
 
     config = sub.add_parser("config", help="show or reset the configuration")
     config.add_argument("--path", action="store_true", help="print the config file path")

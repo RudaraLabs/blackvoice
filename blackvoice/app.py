@@ -277,6 +277,16 @@ class Engine:
         self.bus.publish(Topic.HEARD, text=text, partial=False, source="text")
         reply = self.process(text)
         self._deliver(reply)
+
+        # The voice path returns to idle once the speaker finishes. A typed
+        # command had no such step, so the state stayed on "speaking" forever
+        # and the overlay never learned the reply was over.
+        def _settle() -> None:
+            self.speaker.wait_until_idle(timeout=30.0)
+            if self._state not in (State.ASLEEP, State.LISTENING):
+                self._set_state(State.IDLE)
+
+        threading.Thread(target=_settle, name="settle", daemon=True).start()
         return reply
 
     def process(self, text: str) -> Reply:

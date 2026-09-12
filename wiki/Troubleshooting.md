@@ -170,12 +170,30 @@ sudo apt install espeak-ng
 espeak-ng -v hi "नमस्ते"
 ```
 
-**The voice is unpleasant.** espeak-ng is robotic by design. For a natural voice,
-install [piper](https://github.com/rhasspy/piper), download a voice, and point at
-it:
+**I cannot understand a word of it.** espeak-ng is a formant synthesiser; it is
+tiny and instant and speaks Hindi, which is why it is the fallback, but plenty
+of people cannot follow it. Piper sounds like a person:
+
+```bash
+pip install piper-tts
+blackvoice voice --install
+blackvoice voice --test
+```
+
+Then switch to it in Settings → Speech output, or:
 
 ```jsonc
-"voice": { "engine": "piper", "piper_model": "/path/to/voice.onnx" }
+"voice": { "engine": "piper" }
+```
+
+Voices are about 60 MB each and are fetched on first use. English and Hindi are
+chosen automatically per reply.
+
+**Still hard to follow but not that bad.** Slow it down — the default is 145
+words per minute and lower helps:
+
+```jsonc
+"voice": { "rate": 120 }
 ```
 
 ---

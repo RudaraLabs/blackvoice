@@ -31,7 +31,11 @@ def _which(name: str) -> Optional[str]:
 
 
 def detect_engine() -> str:
-    """Pick the best engine present on this system."""
+    """Pick the best engine present on this system.
+
+    Piper is preferred because it is the only one that sounds like a person,
+    but only when its binary exists - a configured voice is useless without it.
+    """
     if _which("piper"):
         return "piper"
     if _which("espeak-ng") or _which("espeak"):
@@ -154,10 +158,29 @@ class Speaker:
             with self._lock:
                 self._proc = None
 
+    def _piper_voice_for(self, hindi: bool) -> Optional[str]:
+        """Which .onnx to speak this text with, fetching it if need be."""
+        if self.cfg.piper_model:
+            return self.cfg.piper_model
+
+        from .. import voices
+
+        language = "hi" if hindi else "en"
+        name = self.cfg.piper_voice_hi if hindi else self.cfg.piper_voice_en
+
+        if voices.installed(name):
+            return str(voices.voice_path(name))
+
+        if not self.cfg.piper_auto_download:
+            return None
+
+        path = voices.ensure(language, name, on_message=lambda m: log.info("%s", m))
+        return str(path) if path else None
+
     def _speak_piper(self, text: str) -> None:
-        model = self.cfg.piper_model
+        model = self._piper_voice_for(_looks_hindi(text))
         if not model:
-            log.warning("piper selected but voice.piper_model is empty; falling back")
+            log.warning("no piper voice available; falling back to espeak-ng")
             self.engine = "espeak" if (_which("espeak-ng") or _which("espeak")) else "none"
             return self._speak_now(text)
 

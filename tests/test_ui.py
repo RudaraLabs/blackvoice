@@ -114,3 +114,20 @@ def test_setup_state_is_labelled(app) -> None:
     overlay = Overlay(timeout=1.0)
     overlay.show_state("setup")
     assert "downloading" in overlay.state_label.text().lower()
+
+
+def test_popup_does_not_close_itself_by_default(app) -> None:
+    """It used to vanish mid-sentence through a long spoken answer."""
+    overlay = Overlay(timeout=1.0, auto_close=False)
+    overlay.show_reply("A long answer that is still being spoken aloud.")
+    overlay.arm_hide()
+    assert not overlay._hide_timer.isActive(), "nothing should have been scheduled"
+    assert overlay.isVisible()
+
+
+def test_the_close_button_actually_closes_it(app) -> None:
+    overlay = Overlay(timeout=1.0, auto_close=False)
+    overlay.pop()
+    assert overlay.isVisible()
+    overlay.dismiss()
+    assert not overlay.isVisible()

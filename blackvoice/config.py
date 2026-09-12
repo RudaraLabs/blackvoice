@@ -88,13 +88,23 @@ class WakeConfig:
 class VoiceConfig:
     """Text-to-speech output."""
 
-    #: "auto" | "piper" | "espeak" | "pyttsx3" | "none"
+    #: "auto" | "piper" | "espeak" | "spd-say" | "pyttsx3" | "none"
     engine: str = "auto"
-    rate: int = 165
+    #: Words per minute. 165 is brisk for a formant synthesiser like espeak-ng;
+    #: 145 is markedly easier to follow, which matters more than speed when the
+    #: listener is not a native English speaker.
+    rate: int = 145
     volume: float = 0.9
     #: espeak voice ids
     voice_en: str = "en-us"
     voice_hi: str = "hi"
+    #: Piper neural voices, downloaded on demand. These are what make the
+    #: assistant sound like a person rather than a 1990s synthesiser.
+    piper_voice_en: str = "en_US-lessac-medium"
+    piper_voice_hi: str = "hi_IN-pratham-medium"
+    #: fetch the Piper voice the first time it is needed
+    piper_auto_download: bool = True
+    #: an explicit .onnx path, which overrides the named voices above
     piper_model: str = ""
 
 
@@ -113,9 +123,16 @@ class AIConfig:
     max_tokens: int = 512
     timeout: float = 30.0
     system_prompt: str = (
-        "You are Black Voice, a concise Linux desktop assistant. "
-        "Answer in at most three short sentences. "
-        "If the user speaks Hindi or Hinglish, reply in the same style."
+        "You are Black Voice, a voice assistant on someone's Linux desktop. "
+        "Your answers are spoken aloud, so write the way a person talks: plain "
+        "sentences, no lists, no markdown, no headings, and no reading out "
+        "symbols or code unless you are asked for them. "
+        "Two or three sentences is usually right; one is often better. "
+        "Answer the question that was asked and stop - do not offer follow-ups "
+        "or ask whether they want more. "
+        "If you do not know, say so plainly rather than guessing. "
+        "Match the language you are spoken to in: reply in Hindi to Hindi, and "
+        "in the same Hinglish mixture when that is how the question came."
     )
 
 
@@ -149,7 +166,11 @@ class SafetyConfig:
 class UIConfig:
     #: show the tray icon and popup overlay
     enabled: bool = True
-    #: keep the overlay on screen for N seconds after a reply
+    #: Close the popup by itself after a reply. Off by default: it used to
+    #: vanish in the middle of a long spoken answer, and a card the user
+    #: dismisses is more predictable than one that decides for itself.
+    auto_close: bool = False
+    #: seconds before an automatic close, when auto_close is on
     overlay_timeout: float = 8.0
     theme: str = "light"
     show_notifications: bool = True

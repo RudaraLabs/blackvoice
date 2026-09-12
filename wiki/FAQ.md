@@ -144,7 +144,7 @@ voice file.
 ### Is it production ready?
 
 Version 0.1.0. The command routing, safety guard, configuration and skill layers
-have 163 tests. The audio path needs a real machine with a microphone to
+have 165 tests. The audio path needs a real machine with a microphone to
 exercise properly, so treat that as the least-proven part and report what breaks.
 
 ### How do I uninstall it?
