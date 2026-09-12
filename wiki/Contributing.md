@@ -3,7 +3,7 @@
 ## Setup
 
 ```bash
-git clone https://github.com/RudaraLabs/blackvoice.git
+git clone https://github.com/RudraLabs-dev/blackvoice.git
 cd blackvoice
 python3 -m venv .venv
 source .venv/bin/activate

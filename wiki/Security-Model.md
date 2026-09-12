@@ -7,7 +7,7 @@ dangerous, so shell access here is deliberately narrow.
 ## Three buckets
 
 Every command that would reach a shell goes through
-[`ShellGuard`](https://github.com/RudaraLabs/blackvoice/blob/main/blackvoice/core/safety.py)
+[`ShellGuard`](https://github.com/RudraLabs-dev/blackvoice/blob/main/blackvoice/core/safety.py)
 and lands in exactly one of three buckets.
 
 ```mermaid
@@ -156,9 +156,9 @@ Being honest about the boundaries:
 ## Reporting a problem
 
 Found a way around the guard? Open an issue at
-[RudaraLabs/blackvoice/issues](https://github.com/RudaraLabs/blackvoice/issues).
+[RudraLabs-dev/blackvoice/issues](https://github.com/RudraLabs-dev/blackvoice/issues).
 For something serious, please report it privately first.
 
 The test suite has 31 cases covering this guard specifically —
-[`tests/test_safety.py`](https://github.com/RudaraLabs/blackvoice/blob/main/tests/test_safety.py).
+[`tests/test_safety.py`](https://github.com/RudraLabs-dev/blackvoice/blob/main/tests/test_safety.py).
 A new bypass should come with a new test.

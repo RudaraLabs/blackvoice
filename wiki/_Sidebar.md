@@ -22,5 +22,5 @@
 
 ---
 
-[Repository](https://github.com/RudaraLabs/blackvoice) ·
-[Issues](https://github.com/RudaraLabs/blackvoice/issues)
+[Repository](https://github.com/RudraLabs-dev/blackvoice) ·
+[Issues](https://github.com/RudraLabs-dev/blackvoice/issues)

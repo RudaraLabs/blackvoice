@@ -360,7 +360,7 @@ graphical session.
 ## Still stuck
 
 Open an issue at
-[RudaraLabs/blackvoice/issues](https://github.com/RudaraLabs/blackvoice/issues)
+[RudraLabs-dev/blackvoice/issues](https://github.com/RudraLabs-dev/blackvoice/issues)
 with:
 
 ```bash

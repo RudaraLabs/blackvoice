@@ -145,7 +145,7 @@ cat <<'MSG'
 
     https://ollama.com/download     then:  ollama pull llama3.2
 
-  Documentation: https://github.com/RudaraLabs/blackvoice/wiki
+  Documentation: https://github.com/RudraLabs-dev/blackvoice/wiki
 
 MSG
 exit 0
@@ -174,7 +174,7 @@ FPM_COMMON=(
     --license MIT
     --vendor "Rudra Labs"
     --maintainer "Rudra Labs <connect@rudralabs.dev>"
-    --url "https://github.com/RudaraLabs/blackvoice"
+    --url "https://github.com/RudraLabs-dev/blackvoice"
     --description "Offline-first voice assistant for Linux
 Black Voice controls your desktop by voice in Hindi, English and Hinglish.
 Speech recognition runs locally, so it works without a network connection.

@@ -13,10 +13,10 @@
 [![Platform: Linux](https://img.shields.io/badge/platform-linux-black.svg)](#requirements)
 [![Tests](https://img.shields.io/badge/tests-165%20passing-black.svg)](tests/)
 
-**[Documentation](https://github.com/RudaraLabs/blackvoice/wiki)** ·
-[Installation](https://github.com/RudaraLabs/blackvoice/wiki/Installation) ·
-[Commands](https://github.com/RudaraLabs/blackvoice/wiki/Voice-Commands) ·
-[Configuration](https://github.com/RudaraLabs/blackvoice/wiki/Configuration)
+**[Documentation](https://github.com/RudraLabs-dev/blackvoice/wiki)** ·
+[Installation](https://github.com/RudraLabs-dev/blackvoice/wiki/Installation) ·
+[Commands](https://github.com/RudraLabs-dev/blackvoice/wiki/Voice-Commands) ·
+[Configuration](https://github.com/RudraLabs-dev/blackvoice/wiki/Configuration)
 
 </div>
 
@@ -59,7 +59,7 @@ halfway still lands.
 **Safe with a shell.** Voice recognition mishears things; that is the normal
 operating condition, not an edge case. Destructive commands are refused in code,
 anything that changes the system asks first, and only a short read-only list runs
-straight away. See the [security model](https://github.com/RudaraLabs/blackvoice/wiki/Security-Model).
+straight away. See the [security model](https://github.com/RudraLabs-dev/blackvoice/wiki/Security-Model).
 
 **Runs on the desktop you actually have.** Every action probes for the tool that
 is installed — PipeWire before PulseAudio before ALSA, `brightnessctl` before
@@ -79,24 +79,24 @@ KDE, Xfce and the tiling window managers without configuration.
 | **Interface** | Tray icon with a popup overlay, or fully headless for servers and SSH |
 
 The full command reference, in both languages, is in the
-**[wiki](https://github.com/RudaraLabs/blackvoice/wiki/Voice-Commands)**.
+**[wiki](https://github.com/RudraLabs-dev/blackvoice/wiki/Voice-Commands)**.
 
 ## Install
 
 **Debian, Ubuntu, Mint, Pop!\_OS**
 
 ```bash
-sudo apt install ./blackvoice_0.1.2-1_amd64.deb
+sudo apt install ./blackvoice_0.3.0-1_amd64.deb
 ```
 
 **Fedora, RHEL, openSUSE**
 
 ```bash
-sudo dnf install ./blackvoice-0.1.2-1.x86_64.rpm
+sudo dnf install ./blackvoice-0.3.0-1.x86_64.rpm
 ```
 
 Packages are on the
-[releases page](https://github.com/RudaraLabs/blackvoice/releases). They run on
+[releases page](https://github.com/RudraLabs-dev/blackvoice/releases). They run on
 your system Python and pull in what your distribution already packages, bundling
 only the four libraries no distribution ships — which is why they are about
 15 MB rather than 150.
@@ -104,7 +104,7 @@ only the four libraries no distribution ships — which is why they are about
 **From source — any distribution**
 
 ```bash
-git clone https://github.com/RudaraLabs/blackvoice.git
+git clone https://github.com/RudraLabs-dev/blackvoice.git
 cd blackvoice
 ./install.sh --system
 ```
@@ -122,7 +122,7 @@ espeak-ng, playerctl and friends) and needs sudo. Without it only the Python
 side is installed, and `doctor` tells you exactly what is missing.
 
 → Manual install, per-distro package lists and what each one is for:
-**[Installation](https://github.com/RudaraLabs/blackvoice/wiki/Installation)**
+**[Installation](https://github.com/RudraLabs-dev/blackvoice/wiki/Installation)**
 
 ### Requirements
 
@@ -181,7 +181,7 @@ Mixing languages mid-sentence is fine. Anything matching none of the rules
 becomes a question for the AI backend.
 
 → All 42 rules, with slots and matching order:
-**[Voice Commands](https://github.com/RudaraLabs/blackvoice/wiki/Voice-Commands)**
+**[Voice Commands](https://github.com/RudraLabs-dev/blackvoice/wiki/Voice-Commands)**
 
 ## How it works
 
@@ -200,7 +200,7 @@ rather than on the recogniser's own boundaries, so it behaves the same whichever
 recognition path is active.
 
 → Threads, portability, graceful degradation:
-**[Architecture](https://github.com/RudaraLabs/blackvoice/wiki/Architecture)**
+**[Architecture](https://github.com/RudraLabs-dev/blackvoice/wiki/Architecture)**
 
 ## Safety
 
@@ -217,7 +217,7 @@ Brightness never drops below 5%. Folder names are stripped of anything that coul
 traverse a path.
 
 → The full model, including what it does *not* protect against:
-**[Security Model](https://github.com/RudaraLabs/blackvoice/wiki/Security-Model)**
+**[Security Model](https://github.com/RudraLabs-dev/blackvoice/wiki/Security-Model)**
 
 ## Configuration
 
@@ -242,7 +242,7 @@ BLACKVOICE_SPEECH_MODE=offline BLACKVOICE_AI_PROVIDER=none blackvoice
 ```
 
 → Every setting, with defaults and trade-offs:
-**[Configuration](https://github.com/RudaraLabs/blackvoice/wiki/Configuration)**
+**[Configuration](https://github.com/RudraLabs-dev/blackvoice/wiki/Configuration)**
 
 ## Documentation
 
@@ -251,16 +251,16 @@ this repository, so it is reviewed alongside the code.
 
 | | |
 |---|---|
-| [Installation](https://github.com/RudaraLabs/blackvoice/wiki/Installation) | Per-distro packages and what each one is for |
-| [Getting Started](https://github.com/RudaraLabs/blackvoice/wiki/Getting-Started) | First run, the wake word, what to say first |
-| [Voice Commands](https://github.com/RudaraLabs/blackvoice/wiki/Voice-Commands) | Every command in both languages |
-| [Configuration](https://github.com/RudaraLabs/blackvoice/wiki/Configuration) | Every setting explained |
-| [Architecture](https://github.com/RudaraLabs/blackvoice/wiki/Architecture) | How audio becomes an action |
-| [Security Model](https://github.com/RudaraLabs/blackvoice/wiki/Security-Model) | The shell guard in detail |
-| [Writing Skills](https://github.com/RudaraLabs/blackvoice/wiki/Writing-Skills) | Add your own commands |
-| [Troubleshooting](https://github.com/RudaraLabs/blackvoice/wiki/Troubleshooting) | Symptom to fix |
-| [Contributing](https://github.com/RudaraLabs/blackvoice/wiki/Contributing) | Development setup and the test suite |
-| [FAQ](https://github.com/RudaraLabs/blackvoice/wiki/FAQ) | Short answers |
+| [Installation](https://github.com/RudraLabs-dev/blackvoice/wiki/Installation) | Per-distro packages and what each one is for |
+| [Getting Started](https://github.com/RudraLabs-dev/blackvoice/wiki/Getting-Started) | First run, the wake word, what to say first |
+| [Voice Commands](https://github.com/RudraLabs-dev/blackvoice/wiki/Voice-Commands) | Every command in both languages |
+| [Configuration](https://github.com/RudraLabs-dev/blackvoice/wiki/Configuration) | Every setting explained |
+| [Architecture](https://github.com/RudraLabs-dev/blackvoice/wiki/Architecture) | How audio becomes an action |
+| [Security Model](https://github.com/RudraLabs-dev/blackvoice/wiki/Security-Model) | The shell guard in detail |
+| [Writing Skills](https://github.com/RudraLabs-dev/blackvoice/wiki/Writing-Skills) | Add your own commands |
+| [Troubleshooting](https://github.com/RudraLabs-dev/blackvoice/wiki/Troubleshooting) | Symptom to fix |
+| [Contributing](https://github.com/RudraLabs-dev/blackvoice/wiki/Contributing) | Development setup and the test suite |
+| [FAQ](https://github.com/RudraLabs-dev/blackvoice/wiki/FAQ) | Short answers |
 
 ## Development
 
@@ -301,7 +301,7 @@ wake word and speech output — needs a real Linux machine with a microphone to
 exercise, so treat it as the least-proven part and please report what breaks.
 
 Issues and pull requests are welcome:
-[RudaraLabs/blackvoice/issues](https://github.com/RudaraLabs/blackvoice/issues)
+[RudraLabs-dev/blackvoice/issues](https://github.com/RudraLabs-dev/blackvoice/issues)
 
 ## Licence
 

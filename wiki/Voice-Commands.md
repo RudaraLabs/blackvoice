@@ -212,7 +212,7 @@ Two rules are also rejected when they look like questions instead of commands:
   with question words (`what`, `why`, `how`, `kya`, `kaise`, …)
 
 There are 42 rules in total. They live in
-[`blackvoice/nlu/intents.py`](https://github.com/RudaraLabs/blackvoice/blob/main/blackvoice/nlu/intents.py);
+[`blackvoice/nlu/intents.py`](https://github.com/RudraLabs-dev/blackvoice/blob/main/blackvoice/nlu/intents.py);
 adding your own is covered in **[Writing Skills](Writing-Skills)**.
 
 ## When it mishears you

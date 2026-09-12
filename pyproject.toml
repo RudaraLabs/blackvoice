@@ -48,7 +48,7 @@ blackvoice = "blackvoice.cli:main"
 black-voice = "blackvoice.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/RudaraLabs/blackvoice"
+Homepage = "https://github.com/RudraLabs-dev/blackvoice"
 
 [tool.setuptools.dynamic]
 version = { attr = "blackvoice.__version__" }

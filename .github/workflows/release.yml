@@ -283,7 +283,7 @@ jobs:
 
           ### Documentation
 
-          https://github.com/RudaraLabs/blackvoice/wiki
+          https://github.com/RudraLabs-dev/blackvoice/wiki
           EOF
           cat notes.md
 

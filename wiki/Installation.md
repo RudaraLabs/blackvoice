@@ -8,18 +8,18 @@ There are two routes: a distribution package, or the source installer.
 ## From a package
 
 Download from the
-[releases page](https://github.com/RudaraLabs/blackvoice/releases).
+[releases page](https://github.com/RudraLabs-dev/blackvoice/releases).
 
 **Debian, Ubuntu, Mint, Pop!\_OS**
 
 ```bash
-sudo apt install ./blackvoice_0.1.2-1_amd64.deb
+sudo apt install ./blackvoice_0.3.0-1_amd64.deb
 ```
 
 **Fedora, RHEL, openSUSE**
 
 ```bash
-sudo dnf install ./blackvoice-0.1.2-1.x86_64.rpm
+sudo dnf install ./blackvoice-0.3.0-1.x86_64.rpm
 ```
 
 ### What the package installs
@@ -60,7 +60,7 @@ sha256sum -c SHA256SUMS
 Works on any distribution, including those with no package above.
 
 ```bash
-git clone https://github.com/RudaraLabs/blackvoice.git
+git clone https://github.com/RudraLabs-dev/blackvoice.git
 cd blackvoice
 ./install.sh --system
 ```

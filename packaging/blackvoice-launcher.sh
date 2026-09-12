@@ -19,7 +19,7 @@ LIB=/opt/blackvoice/lib
 if [ ! -d "$LIB" ]; then
     echo "blackvoice: the bundled libraries at $LIB are missing." >&2
     echo "Reinstall the package, or report this at" >&2
-    echo "https://github.com/RudaraLabs/blackvoice/issues" >&2
+    echo "https://github.com/RudraLabs-dev/blackvoice/issues" >&2
     exit 1
 fi
 
