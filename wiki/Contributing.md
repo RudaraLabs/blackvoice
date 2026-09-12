@@ -11,7 +11,7 @@ pip install -e ".[all,dev]"
 pytest -q
 ```
 
-152 tests should pass in under a second. None of them need a microphone, a
+163 tests should pass in under a second. None of them need a microphone, a
 display or a network connection.
 
 ## Working without a microphone
@@ -59,6 +59,7 @@ pytest --cov=blackvoice          # coverage
 | `test_engine.py` | Confirmations, event bus, sleep | 9 |
 | `test_models.py` | First-run model setup | 12 |
 | `test_ui.py` | Overlay, run under the offscreen platform | 13 |
+| `test_settings.py` | Settings window and config round-trip | 11 |
 
 ### What to test
 

@@ -56,6 +56,11 @@ class TrayApp:
         self.app = QApplication.instance() or QApplication(sys.argv)
         self.app.setApplicationName(APP_TITLE)
         self.app.setApplicationDisplayName(APP_TITLE)
+        # Without this the desktop cannot match the running process to
+        # blackvoice.desktop, so GNOME shows a generic icon - or none at all -
+        # in the dock. On Wayland it is the only association that works; on X11
+        # it sets WM_CLASS, which StartupWMClass in the .desktop file matches.
+        self.app.setDesktopFileName("blackvoice")
         self.app.setApplicationVersion(__version__)
         self.app.setOrganizationName(APP_VENDOR)
         self.app.setWindowIcon(app_icon())
@@ -101,7 +106,11 @@ class TrayApp:
 
         menu.addSeparator()
 
-        config_action = QAction("Edit configuration…", menu)
+        settings_action = QAction("Settings…", menu)
+        settings_action.triggered.connect(self.open_settings)
+        menu.addAction(settings_action)
+
+        config_action = QAction("Edit the config file…", menu)
         config_action.triggered.connect(self._open_config)
         menu.addAction(config_action)
 
@@ -132,6 +141,26 @@ class TrayApp:
             )
         except OSError:
             log.warning("could not open %s", path)
+
+    def open_settings(self) -> None:
+        """Open the settings window, reusing it if it is already up."""
+        from .settings import SettingsWindow
+
+        existing = getattr(self, "_settings", None)
+        if existing is not None and existing.isVisible():
+            existing.raise_()
+            existing.activateWindow()
+            return
+
+        self._settings = SettingsWindow(self.engine.config)
+        self._settings.saved.connect(self._on_settings_saved)
+        self._settings.show()
+
+    def _on_settings_saved(self) -> None:
+        # Most of the engine reads its configuration once at startup, so the
+        # window tells the user to restart. What can be applied live is.
+        self.overlay._timeout_ms = int(self.engine.config.ui.overlay_timeout * 1000)
+        log.info("settings reloaded")
 
     def _open_config(self) -> None:
         self.engine.config.save()  # make sure the file exists before opening it

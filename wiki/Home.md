@@ -69,7 +69,7 @@ Set `speech.mode` to `"offline"` and nothing ever leaves the machine.
 ## Project status
 
 Version 0.1.0. The command routing, safety guard, configuration and skill layers
-are covered by 152 tests. The audio path — microphone capture, Vosk recognition,
+are covered by 163 tests. The audio path — microphone capture, Vosk recognition,
 wake word and speech output — needs a real Linux machine with a microphone to
 exercise, so treat it as the least-tested part of the system and report what
 breaks.

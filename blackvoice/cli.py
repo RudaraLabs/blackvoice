@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import shutil
 import sys
+import time
 import zipfile
 from pathlib import Path
 from typing import List, Optional
@@ -192,6 +193,118 @@ def cmd_setup(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_mic(args: argparse.Namespace) -> int:
+    """Show a live level meter, to answer "is the microphone working at all?".
+
+    This is the first thing to run when nothing happens after speaking. It
+    separates three failures that look identical from the outside: no device,
+    a device that produces silence, and recognition that is not triggering.
+    """
+    from .audio.mic import Microphone, MicrophoneUnavailable, rms_level
+
+    config = Config.load()
+
+    try:
+        from .audio.mic import list_devices
+
+        devices = list_devices()
+    except Exception as exc:
+        print(f"{BAD} Could not query audio devices: {exc}")
+        print()
+        print("  On Debian/Ubuntu:  sudo apt install portaudio19-dev")
+        return 1
+
+    if not devices:
+        print(f"{BAD} No input device found.")
+        print()
+        print("  Nothing is wrong with Black Voice - the system has no microphone")
+        print("  it can see. In a virtual machine this usually means the host mic")
+        print("  is not being passed through:")
+        print()
+        print("    VirtualBox   Settings -> Audio -> Enable Audio Input")
+        print("    VMware       Removable Devices -> Sound Card -> Connect")
+        print("    virt-manager Add Hardware -> Sound, then check the host mixer")
+        print()
+        print("  Confirm with:  arecord -l")
+        return 1
+
+    chosen = config.audio.input_device
+    print("Input devices:")
+    for dev in devices:
+        mark = ARROW if chosen == dev["index"] else " " * len(ARROW)
+        print(f"  {mark} [{dev['index']:2d}] {dev['name']}")
+    if chosen is None:
+        print(f"\nUsing the system default. Set audio.input_device to pin one.")
+    print()
+
+    seconds = max(3, min(60, args.seconds))
+    print(f"Listening for {seconds} seconds - speak normally.")
+    print(f"The bar should move when you talk. Ctrl+C to stop early.")
+    print()
+
+    threshold = config.audio.silence_threshold
+    peak = 0.0
+    heard = 0
+    blocks = 0
+
+    try:
+        with Microphone(config.audio) as mic:
+            deadline = time.monotonic() + seconds
+            while time.monotonic() < deadline:
+                block = mic.read(timeout=1.0)
+                if block is None:
+                    continue
+                blocks += 1
+                level = rms_level(block)
+                peak = max(peak, level)
+                if level >= threshold:
+                    heard += 1
+
+                # Scale for display the same way the overlay waveform does.
+                filled = int(min(1.0, level * 8.0) * 40)
+                bar = "#" * filled + "." * (40 - filled)
+                flag = "  <- speech" if level >= threshold else ""
+                print(f"{chr(13)}  [{bar}] {level * 100:5.1f}%{flag}   ",
+                      end="", flush=True)
+    except MicrophoneUnavailable as exc:
+        print(f"\n{BAD} {exc}")
+        return 1
+    except KeyboardInterrupt:
+        pass
+
+    print()
+    print()
+
+    if blocks == 0:
+        print(f"{BAD} The device opened but delivered no audio at all.")
+        print("  Check the host mixer, and that the VM is not muted.")
+        return 1
+
+    print(f"Blocks captured   {blocks}")
+    print(f"Peak level        {peak * 100:.1f}%")
+    print(f"Silence threshold {threshold * 100:.1f}%  (audio.silence_threshold)")
+    print()
+
+    if peak < 0.002:
+        print(f"{BAD} Effectively silence. The device exists but hears nothing.")
+        print("  The microphone is muted, at zero gain, or not connected to the")
+        print("  guest. Check the host mixer and 'alsamixer' inside the VM.")
+        return 1
+
+    if heard == 0:
+        print(f"{BAD} Audio is arriving but never crosses the speech threshold.")
+        print(f"  Lower it so quiet speech registers:")
+        print()
+        print(f'    "audio": {{ "silence_threshold": {max(0.002, peak * 0.4):.3f} }}')
+        return 1
+
+    print(f"{OK} The microphone works - {heard} of {blocks} blocks were speech.")
+    print()
+    print("  If commands still do nothing, the problem is recognition, not audio.")
+    print("  Check that the speech models are installed:  blackvoice doctor")
+    return 0
+
+
 def cmd_doctor(args: argparse.Namespace) -> int:
     """Report what is installed and what is missing."""
     from .app import Engine
@@ -362,6 +475,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     devices = sub.add_parser("devices", help="list microphones")
     devices.set_defaults(func=cmd_devices)
+
+    mic = sub.add_parser("mic", help="live microphone level meter")
+    mic.add_argument("--seconds", type=int, default=15,
+                     help="how long to listen (default: 15)")
+    mic.set_defaults(func=cmd_mic)
 
     say = sub.add_parser("say", help="test text to speech")
     say.add_argument("text", nargs="*")

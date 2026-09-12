@@ -10,6 +10,16 @@ It lists every Python package, system tool, model and microphone, marks what is
 missing, and prints the exact command to fix each gap. Most problems on this page
 are visible in its output.
 
+If the symptom is that **speaking does nothing**, run this as well. It answers
+the one question `doctor` cannot — whether audio actually reaches the program:
+
+```bash
+blackvoice mic
+```
+
+The bar should move when you talk. If it does not, the fault is below Black
+Voice, and the output names where to look.
+
 For more detail:
 
 ```bash

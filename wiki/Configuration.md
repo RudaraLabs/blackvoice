@@ -1,5 +1,9 @@
 # Configuration
 
+Every setting below is editable from the tray icon → **Settings**, which writes
+the same file. The window is generated from the configuration itself, so it
+never falls behind what the program understands.
+
 Configuration lives at `~/.config/blackvoice/config.json`. It is created with
 defaults on first run.
 
