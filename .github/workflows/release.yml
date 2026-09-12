@@ -61,6 +61,14 @@ jobs:
 
           echo "version=$CODE" >> "$GITHUB_OUTPUT"
 
+      - name: Qt runtime libraries
+        run: |
+          # PyQt6 links against these even under the offscreen platform; a bare
+          # runner has none of them and the import fails with
+          # "libEGL.so.1: cannot open shared object file".
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends             libegl1 libgl1 libxkbcommon-x11-0 libdbus-1-3 > /dev/null
+
       - name: Install and test
         env:
           # The overlay tests need a Qt platform plugin but no display.

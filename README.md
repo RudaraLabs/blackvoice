@@ -11,7 +11,7 @@
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-black.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-black.svg)](https://www.python.org/)
 [![Platform: Linux](https://img.shields.io/badge/platform-linux-black.svg)](#requirements)
-[![Tests](https://img.shields.io/badge/tests-151%20passing-black.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-152%20passing-black.svg)](tests/)
 
 **[Documentation](https://github.com/RudaraLabs/blackvoice/wiki)** ·
 [Installation](https://github.com/RudaraLabs/blackvoice/wiki/Installation) ·
@@ -260,7 +260,7 @@ this repository, so it is reviewed alongside the code.
 
 ```bash
 pip install -e ".[all,dev]"
-pytest -q                  # 151 tests, no microphone required
+pytest -q                  # 152 tests, no microphone required
 blackvoice text            # exercise the router without speaking
 ```
 
@@ -290,7 +290,7 @@ wiki on GitHub directly does not work — the next sync overwrites it. Change
 ## Project status
 
 Version 0.1.0. The routing, safety guard, configuration and skill layers are
-covered by 151 tests. The audio path — microphone capture, Vosk recognition,
+covered by 152 tests. The audio path — microphone capture, Vosk recognition,
 wake word and speech output — needs a real Linux machine with a microphone to
 exercise, so treat it as the least-proven part and please report what breaks.
 
