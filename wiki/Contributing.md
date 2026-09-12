@@ -11,7 +11,7 @@ pip install -e ".[all,dev]"
 pytest -q
 ```
 
-139 tests should pass in under a second. None of them need a microphone, a
+151 tests should pass in under a second. None of them need a microphone, a
 display or a network connection.
 
 ## Working without a microphone
@@ -58,6 +58,7 @@ pytest --cov=blackvoice          # coverage
 | `test_config.py` | Loading, merging, environment overrides | 14 |
 | `test_engine.py` | Confirmations, event bus, sleep | 9 |
 | `test_models.py` | First-run model setup | 12 |
+| `test_ui.py` | Overlay, run under the offscreen platform | 12 |
 
 ### What to test
 
@@ -175,10 +176,13 @@ four things:
 
 It publishes them to a GitHub Release with a `SHA256SUMS` file.
 
-The `.deb` and `.rpm` are built **inside containers of the distributions they
-target**, because the bundled virtualenv is tied to the interpreter that created
-it. Building both on the same runner would produce a package that works on one
-distribution and fails on the other.
+The `.deb` and `.rpm` run on the system Python and depend on the packages the
+distribution already provides. Only the four libraries no distribution ships -
+vosk, sounddevice, SpeechRecognition and pyttsx3 - are bundled, and none of them
+carries a CPython ABI tag, so one build serves every distribution.
+
+An earlier design bundled a whole virtualenv instead. That failed on any host
+whose Python differed from the build machine's, which is most of them.
 
 To test the packaging without releasing anything, run the workflow manually from
 the Actions tab — it builds and checks every artifact but publishes nothing.

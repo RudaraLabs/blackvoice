@@ -62,9 +62,14 @@ jobs:
           echo "version=$CODE" >> "$GITHUB_OUTPUT"
 
       - name: Install and test
+        env:
+          # The overlay tests need a Qt platform plugin but no display.
+          QT_QPA_PLATFORM: offscreen
         run: |
           python -m pip install --quiet --upgrade pip
-          pip install --quiet -e ".[dev]"
+          # ui is included so the overlay tests actually run here rather than
+          # skipping silently - a test that never executes is not a test.
+          pip install --quiet -e ".[dev,ui]"
           pytest -q
 
   # ------------------------------------------------------------------ #

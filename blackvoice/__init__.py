@@ -3,7 +3,7 @@
 A Rudra Labs product.
 """
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __author__ = "Rudra Labs"
 __license__ = "MIT"
 

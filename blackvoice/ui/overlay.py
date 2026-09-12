@@ -11,7 +11,7 @@ import logging
 from typing import List, Optional
 
 from PyQt6.QtCore import QEasingCurve, QPropertyAnimation, QRectF, Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
+from PyQt6.QtGui import QColor, QFont, QGuiApplication, QPainter, QPainterPath, QPen
 from PyQt6.QtWidgets import (
     QApplication,
     QFrame,
@@ -30,6 +30,18 @@ log = logging.getLogger(__name__)
 
 CARD_WIDTH = 520
 BAR_COUNT = 28
+
+#: Platform plugins that cannot set per-window opacity. Qt prints
+#: "This plugin does not support setting window opacity" on every attempt,
+#: which floods the journal because the overlay fades on each activation.
+#: The fade is decoration, so it is simply skipped there.
+_NO_OPACITY_PLATFORMS = ("wayland", "offscreen", "minimal", "vnc", "linuxfb", "eglfs")
+
+
+def _supports_window_opacity() -> bool:
+    name = (QGuiApplication.platformName() or "").lower()
+    return not any(p in name for p in _NO_OPACITY_PLATFORMS)
+
 
 _STATE_LABEL = {
     "idle": "ready",
@@ -133,9 +145,15 @@ class Overlay(QWidget):
         self._hide_timer.setSingleShot(True)
         self._hide_timer.timeout.connect(self.fade_out)
 
+        self._can_fade = _supports_window_opacity()
         self._fade = QPropertyAnimation(self, b"windowOpacity", self)
         self._fade.setDuration(180)
         self._fade.setEasingCurve(QEasingCurve.Type.InOutQuad)
+        if not self._can_fade:
+            log.debug(
+                "platform %r cannot set window opacity; showing the overlay "
+                "without a fade", QGuiApplication.platformName(),
+            )
 
     # -------------------------------------------------------------- layout
     def _build(self) -> None:
@@ -247,16 +265,22 @@ class Overlay(QWidget):
         self.adjustSize()
         self.position()
         if not self.isVisible():
-            self.setWindowOpacity(0.0)
-            self.show()
-            self._fade.stop()
-            self._fade.setStartValue(0.0)
-            self._fade.setEndValue(1.0)
-            self._fade.start()
+            if self._can_fade:
+                self.setWindowOpacity(0.0)
+                self.show()
+                self._fade.stop()
+                self._fade.setStartValue(0.0)
+                self._fade.setEndValue(1.0)
+                self._fade.start()
+            else:
+                self.show()
         self._hide_timer.stop()
 
     def fade_out(self) -> None:
         if not self.isVisible():
+            return
+        if not self._can_fade:
+            self.hide()
             return
         self._fade.stop()
         self._fade.setStartValue(self.windowOpacity())
